@@ -7,9 +7,11 @@ find . -name ".DS_Store" -delete
 zip -f -D "$DEST/AdjustedRsquare.R.zip" "AdjustedRsquare.R"
 zip -f -D "$DEST/anova.1way.R.zip" "anova.1way.R"
 zip -f -D "$DEST/anova.2way.R.zip" "anova.2way.R"
+zip -f -D "$DEST/anova.2way.unbalanced.R.zip" "anova.2way.unbalanced.R"
 zip -f -D "$DEST/anova.3way.R.zip" "anova.3way.R"
 zip -f -D "$DEST/broken.stick.R.zip" "broken.stick.R"
 zip -f -D "$DEST/corPerm.R.zip" "corPerm.R"
+zip -f -D "$DEST/dagnelie.test.R.zip" "dagnelie.test.R"
 zip -f -D "$DEST/multRegress.R.zip" "multRegress.R"
 zip -f -D "$DEST/manova.2way.unbalanced.R.zip" "manova.2way.unbalanced.R"
 zip -f -D "$DEST/nest.anova.perm.R.zip" "nest.anova.perm.R"
@@ -18,6 +20,7 @@ zip -f -D "$DEST/t.perm.R.zip" "t.perm.R"
 zip -f -D "$DEST/t.paired.perm.R.zip" "t.paired.perm.R"
 
 zip -f -D -r "$DEST/CCorA.zip" "CCorA"
+zip -f -D -r "$DEST/CCA.zip" "CCA"
 
 cd "PCA-CA/CA"
 zip -f "$DEST/CA.zip" *
