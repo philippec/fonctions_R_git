@@ -15,7 +15,7 @@ mul.text=0.10, pos.ell=NULL, pos.bin=NULL, pos.sites=1, label.sites=TRUE,
 label.spe=TRUE, label.env=TRUE, label.ell=TRUE, col.env="blue", col.spe="red", 
 col.site="black", col.ell="black", lty.env=1, lty.spe=1, lty.ell=1, lty.axis=2, 
 cex=1, cex.lab=1, cex.axis=1, lwd=1, len=0.1, saveplot=FALSE, path=NULL, 
-mar.perc=NULL, select.spe=NULL, ...)
+mar.perc=NULL, interior.mar.perc=0.05, select.spe=NULL, ...)
 }
 
 \arguments{
@@ -36,7 +36,8 @@ mar.perc=NULL, select.spe=NULL, ...)
   \item{xlim, ylim }{ Vectors describing the minimum and maximum values of the plotted region. }
   \item{lwd }{ Line width for the axes, arrows, and ellipses. }
   \item{len }{ Length of the arrow heads. }
-  \item{mar.perc }{ Allows one to increase or decrease the margin size, using a percentage of the total width and height of the graph; the value must be between 0 and 1. }
+  \item{mar.perc }{ Allows one to increase or decrease the size of the outer margin of the graph, using a fraction of the total width and height of the graph; the value must be between 0 and 1. }
+  \item{interior.mar.perc }{ Allows one to increase the interior margin of the plot, i.e. the space between the outermost points and the frame, using a fraction of the total size of the frame; the value must be between 0 and 1. Default value: \code{interior.mar.perc=0.05}. }
   \item{select.spe }{ Vector containing a selection of the species, to  be drawn in the biplot. Draw all species if select.spe=NULL (default value). }
   \item{...}{ Other graphical arguments passed to the function. }
 

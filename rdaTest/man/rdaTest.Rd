@@ -28,7 +28,7 @@ rdaTest(Y, X, W=NULL, scale.Y=FALSE, test.F=NULL, nperm=NULL, silent=FALSE)
 
   \item{nperm}{ Number of permutations for the F-test. If \code{nperm = NULL} (default), a question will be asked by the program. If \code{nperm = 0}, permutation tests will not be computed. For large data files, the permutation test is slow since the permutation procedure is not compiled. } 
 
-  \item{silent}{ If \code{silent = TRUE}, the basic rdaTest output is printed to the R window. See the paragraph Value. Choose \code{silent = FALSE} when the function is called by a numerical simulation function. }
+  \item{silent}{ If \code{silent = FALSE}, the basic rdaTest output is printed to the R window. See the paragraph Value. Choose \code{silent = TRUE} when the function is called by a numerical simulation function. }
 }
 
 \details{

@@ -11,8 +11,8 @@ Function \code{\link{plot.rdaTest}} produces triplots from the output list of \c
 \tabular{ll}{
 Package: \tab rdaTest\cr
 Type: \tab Package\cr
-Version: \tab 1.4\cr
-Date: \tab 2009-06-23\cr
+Version: \tab 1.6\cr
+Date: \tab 2010-02-21\cr
 License: \tab Copyleft\cr
 LazyLoad: \tab yes\cr
 }

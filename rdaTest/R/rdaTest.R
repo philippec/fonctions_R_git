@@ -55,7 +55,7 @@
 		vif.res = vif(X,print.vif=!silent)
 		if(length(which(vif.res==0))!=0) X.cor = X[,-which(vif.res==0)]
 		} else { vif.res=rep(1,m1) }
-	m=ncol(X.cor)
+	m=ncol(as.matrix(X.cor))
 	
 	if((!silent) & m > 1){ 
 		cat('\n')
@@ -71,7 +71,7 @@
 		W.mat=as.matrix(W)
 		qq=ncol(W.mat)
 		W=apply(W.mat,2,scale,center=TRUE,scale=TRUE)
-    	if(!silent) cat("\nThere is a covariance matrix\n")
+    	if(!silent) cat("\nThere is a matrix of covariables\n")
     	# Find the rank of W using QR decomposition
     	QR.W = qr(W, tol = 1e-06)
     	q = QR.W$rank
@@ -81,7 +81,7 @@
 	}
 	else{
 		covar=FALSE
-    	if(!silent) cat("\nThere is no covariance matrix\n")
+    	if(!silent) cat("\nThere is no matrix of covariables\n")
 	}
 
 	# If covariables W are present, regress X on W. Obtain X.res
@@ -397,55 +397,58 @@ vif <- function(mat, print.vif=TRUE)
 #    Neter, J. et al. 1996. Applied linear statistical models. 4th edition.
 #    Richard D. Irwin Inc., Chicago.
 #
-# mat = matrix to be filtered for collinearity.	
+# mat = response data matrix to be filtered for collinearity.	
 #
 # Output:
 #
-# - The variables that are completely collinear with the previously entered variables receive 0.
-# - The other variables receive Variance Inflation Factors (VIF). VIF > 10 (or > 20 for other
-#   authors) represent high collinearity.
+# - The variables that are completely collinear with the previously entered 
+#   variables receive a 0 code.
+# - The other variables receive Variance Inflation Factors (VIF). 
+#   VIF > 10 (or > 20 for other authors) represent high collinearity.
 #
 # Sebastien Durand and Pierre Legendre, March 2005
-#
 {
 	library(MASS)
 	threshold <- .Machine$double.eps
-	# threshold = value defining the threshold for considering that a covariance matrix
-	#    has a zero determinant. A covariance or correlation matrix having a zero determinant
-	#    contains at least one variable that is completely collinear with the others.
+	# threshold = value defining the threshold for considering that a covariance 
+	# matrix has a zero determinant. A covariance or correlation matrix having a 	# zero determinant contains at least one variable that is completely 
+	# collinear with the others.
 	mat.cor <- cor(mat)
 	mm = 0
-	for(i in 2:ncol(mat)){
-		look<-c(1:i)
-		if(mm!=0)
+	for(i in 2:ncol(mat)) {
+		look <- c(1:i)
+		if(mm != 0)
 			look <- look[-mrk]
 		if( det(mat.cor[look,look]) < threshold ) {
 			if(print.vif) {
 				cat('\n')
-				cat("Variable '",colnames(mat)[i],"' is collinear: determinant is ", 
-				    det(mat.cor),'\n')
-			}
-			if(mm==0) {
+				cat("Variable '",colnames(mat)[i],"' is collinear: determinant is ", det(mat.cor),'\n')
+				}
+			if(mm == 0) {
 				mrk <- i
-				mm <- 1
+				mm  <- 1
 			} else {
 				mrk <- c(mrk,i)
 			}
 		}	
 	}
 	
-	# Assign 0 to VIF of variables that are completely collinear with the previous variables
-	# Compute VIF for the remaining variables
-	if(mm==1){
-		vif1<-diag(ginv(cor(mat[,-mrk])))
-		vif0<-rep(0,length(mrk))
-		vif<-c(vif0,vif1)
-		nn<-1:ncol(mat)
-		vif <- round(vif[sort(c(mrk,nn[-mrk]),index.return=TRUE)$ix],digit=2)
-	}else{
-		vif <- round(diag(ginv(cor(mat))),digit=2)
+	# Assign 0 to VIF of variables that are completely collinear with the 
+	# previous variables. Compute VIF for the remaining variables
+	if(mm==1) {
+		if(ncol(as.matrix(mat[,-mrk])) == 1) {
+			vif1 <- 1
+			} else {
+			vif1 <- diag(ginv(cor(mat[,-mrk])))
+			}
+		vif0 <- rep(0,length(mrk))
+		vif  <- c(vif0,vif1)
+		nn   <- 1:ncol(mat)
+		vif  <- round(vif[sort(c(mrk,nn[-mrk]),index.return=TRUE)$ix],digit=2)
+	} else {
+		vif  <- round(diag(ginv(cor(mat))),digit=2)
 	}
-	names(vif)<-colnames(mat)
+	names(vif) <- colnames(mat)
 	
 	#
 	return(vif)

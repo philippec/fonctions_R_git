@@ -5,11 +5,24 @@
 	pos.ell=NULL, pos.bin=NULL, pos.sites=1, label.sites=TRUE, label.spe=TRUE, 
 	label.env=TRUE, label.ell=TRUE, col.env="blue", col.spe="red", col.site="black",
 	col.ell="black", lty.env=1, lty.spe=1, lty.ell=1, lty.axis=2, cex=1, cex.lab=1, 
-	cex.axis=1, lwd=1, len=0.1, saveplot=FALSE, path=NULL, mar.perc=NULL, select.spe=NULL, ...)
+	cex.axis=1, lwd=1, len=0.1, saveplot=FALSE, path=NULL, mar.perc=NULL, 
+	interior.mar.perc=0.05, select.spe=NULL, ...)
 #
 # Version 1.0: Sébastien Durand and Pierre Legendre, Université de Montréal, April 2005
 # Version 1.2: Pierre Legendre, Université de Montréal, April 2008
 {
+    #### Internal function
+	larger.frame <- function(mat, percent=0.05)
+	# Produce an object plot 10% larger than strictly necessary
+	{
+	range.mat = apply(mat,2,range)
+	z <- apply(range.mat, 2, function(x) x[2]-x[1])
+	range.mat[1,]=range.mat[1,]-z*percent
+	range.mat[2,]=range.mat[2,]+z*percent
+	range.mat
+	}
+	####
+
 # Axis reversion filter
 	if(saveplot==TRUE){
 		if(is.null(path)){
@@ -71,7 +84,7 @@
 	}
 	
 	if(graph.type != "Z") {
-		x$Z.mat<-x$F.mat
+		x$Z.mat <- x$F.mat
 	}
 	
 	if(!is.null(binary)) {
@@ -101,6 +114,13 @@
 	#Control marging size
 	if(length(mar.perc)!=0)
 		par(mai=c(height*mar.perc,width*mar.perc,height*mar.perc/2,width*mar.perc/2))
+
+	#Interior margin of the plot (space between outer points and frame)
+	if(is.null(xlim) & is.null(ylim)) {
+		lf.Z = larger.frame(x$Z.mat[,c(xax,yax)], percent=interior.mar.perc)
+		xlim <- lf.Z[,1]
+		ylim <- lf.Z[,2]
+		}
 
     # Plot site points and labels
     if(plot.sites) { type="p" }
