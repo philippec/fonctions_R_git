@@ -1,5 +1,5 @@
 `CA` <- 
-   function(Y, use.svd=TRUE, color.sites="black", color.sp="red")
+   function(Y, use.svd=TRUE)
 #
 # Compute correspondence analysis (CA).
 # Data table Y must contain frequencies or equivalent.
@@ -16,7 +16,7 @@
 Y = as.matrix(Y)
 if(min(Y) < 0) stop("Negative values not allowed in CA")
 #
-# Calculate three basic parameters
+# Calculate basic parameters of Y
 n = nrow(Y)
 p = ncol(Y)
 #
@@ -39,7 +39,7 @@ if(use.svd) {
    # Analyse Qbar by 'svd'
    svd.res = svd(Qbar)
    k = length(which(svd.res$d > 1e-8))
-   eigenvalues = svd.res$d[1:k]^2
+   values = svd.res$d[1:k]^2
    U = svd.res$v[,1:k]
    Uhat = svd.res$u[,1:k]
    } else {
@@ -47,25 +47,38 @@ if(use.svd) {
    Qbar = as.matrix(Qbar)
    QprQ.eig = eigen( t(Qbar) %*% Qbar )
    k = length(which(QprQ.eig$values > 1e-16))
-   eigenvalues = QprQ.eig$values[1:k]
+   values = QprQ.eig$values[1:k]
    U = QprQ.eig$vectors[,1:k]
-   Uhat = Qbar %*% U %*% diag(eigenvalues^(-0.5))
+   Uhat = Qbar %*% U %*% diag(values^(-0.5))
    }
 #
-rel.eigen = eigenvalues/inertia
-rel.cum = rel.eigen[1]
-for(kk in 2:k) { rel.cum = c(rel.cum, (rel.cum[kk-1] + rel.eigen[kk])) }
+rel.values = values/inertia
+cum.rel = rel.values[1]
+for(kk in 2:k) { cum.rel = c(cum.rel, (cum.rel[kk-1] + rel.values[kk])) }
 #
-# Construct matrices V, Vhat, F, and Fhat for the ordination biplots
+# Construct matrices V, Vhat, F, and Fhat for biplots, scalings 1 and 2
 V = diag(p.j^(-0.5)) %*% U
 Vhat = diag(pi.^(-0.5)) %*% Uhat
-F = Vhat %*% diag(eigenvalues^(0.5))
-Fhat = V %*% diag(eigenvalues^(0.5))
+F = Vhat %*% diag(values^(0.5))
+Fhat = V %*% diag(values^(0.5))
 #
-out <- list(total.inertia=inertia, eigenvalues=eigenvalues, 
-       rel.eigen=rel.eigen, rel.cum.eigen=rel.cum, U=U, Uhat=Uhat, F=F, 
-       Fhat=Fhat, V=V, Vhat=Vhat, site.names=site.names, sp.names=sp.names,
-       color.sites=color.sites, color.sp=color.sp, call=match.call() )
+# Matrices for biplot, scaling = 3 (Symmetric scaling in Canoco)
+spec3 = V %*% diag(values^(0.25))                # Species scores
+site3 = Vhat %*% diag(values^(0.25))             # Site scores
+#
+rownames(U) <- rownames(V) <- rownames(spec3) <- rownames(Fhat) <- sp.names
+rownames(Uhat) <- rownames(F) <- rownames(Vhat) <- rownames(site3) <- site.names
+ax.names <- paste("Axis",1:k,sep="")
+colnames(U) <- colnames(Uhat) <- colnames(V) <- colnames(spec3) <- colnames(Vhat) <- colnames(site3) <- colnames(F) <- colnames(Fhat) <- ax.names
+#
+general <- list(inertia=inertia, values=values, rel.values=rel.values, cum.rel=cum.rel)
+scaling1 <- list(species=V, sites=F)
+scaling2 <- list(species=Fhat, sites=Vhat)
+scaling3 <- list(species=spec3, sites=site3)
+scaling4 <- list(species=Fhat, sites=F)
+other <- list(U=U, Uhat=Uhat, site.names=site.names, sp.names=sp.names, Qbar=Qbar, call=match.call() )
+#
+out <- list(general=general, scaling1=scaling1, scaling2=scaling2, scaling3=scaling3, scaling4=scaling4, other=other)
 class(out) <- "CA"
 out
 }
@@ -73,87 +86,87 @@ out
 `print.CA` <-
     function(x, ...)
 {
+if (!inherits(x, "CA")) stop("Object of class 'CA' expected")
     cat("\nCorrespondence Analysis\n")
     cat("\nCall:\n")
-    cat(deparse(x$call),'\n')
-    cat("\nTotal inertia in matrix Qbar: ",x$total.inertia,'\n')
+    cat(deparse(x$other$call),'\n')
+    cat("\nTotal inertia in matrix Qbar: ",x$general$inertia,'\n')
     cat("\nEigenvalues",'\n')
-    cat(x$eigenvalues,'\n')
+    cat(x$general$values,'\n')
     cat("\nRelative eigenvalues",'\n')
-    cat(x$rel.eigen,'\n')
+    cat(x$general$rel.values,'\n')
     cat("\nCumulative relative eigenvalues",'\n')
-    cat(x$rel.cum.eigen,'\n')
+    cat(x$general$cum.rel,'\n')
+    cat('\n')
     invisible(x) 
 }
 
 `biplot.CA` <-
-    function(x, scaling=12, aspect=1, cex=2, ...)
-# Use aspect=NA to remove the effect of parameter 'asp' in the graphs
+function(x, xax=1, yax=2, scaling=1, aspect=1, cex=1, color.sites="black", color.sp="red",...)
+# xax and yax determine the axes that will be plotted.
+# Use aspect=NA to remove the effect of parameter 'asp' in the biplot.
 {
-if(length(x$eigenvalues) < 2) stop("There is a single eigenvalue. No plot can be produced.")
+if (!inherits(x, "CA")) stop("Object of class 'CA' expected")
+if(length(x$general$values) < 2) stop("There is a single eigenvalue. No plot can be produced.")
 #
-# Find the limits of CA axes 1 and 2 for the plots
-V.range = apply(x$V[,1:2],2,range)
-Vhat.range = apply(x$Vhat[,1:2],2,range)
-F.range = apply(x$F[,1:2],2,range)
-Fhat.range = apply(x$Fhat[,1:2],2,range)
+sp.names = x$other$sp.names
+si.names = x$other$site.names
 #
-if(scaling == 12) {
-# Create a drawing window for two graphs
-par(mfrow=c(1,2))
-#
-# Biplot, scaling type = 1: plot F for sites, V for species
+
+if(scaling == 1) {
+
 # The sites are at the centroids (barycentres) of the species
 # This projection preserves the chi-square distance among the sites
-ranF = F.range[2,] - F.range[1,]
-ranV = V.range[2,] - V.range[1,]
-ran.x = max(ranF[1], ranV[1])
-xmin = min(V.range[1,1], F.range[1,1]) - ran.x/8
-xmax = max(V.range[2,1], F.range[2,1]) + ran.x/3
-ymin = min(V.range[1,2], F.range[1,2])
-ymax = max(V.range[2,2], F.range[2,2])
-#
-plot(x$F[,1:2], asp=aspect, pch=20, cex=cex, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab="CA axis 1", ylab="CA axis 2", col=x$color.sites)
-text(x$F[,1:2], labels=x$site.names, cex=cex, pos=4, offset=0.5, col=x$color.sites)
-points(x$V[,1:2], pch=22, cex=cex, col=x$color.sp)
-text(x$V[,1:2], labels=x$sp.names, cex=cex, pos=4, offset=0.5, col=x$color.sp)
-title(main = c("CA biplot","scaling type 1"), family="serif")
-#
-# Biplot, scaling type = 2: plot Vhat for sites, Fhat for species
+type = "scaling type 1"
+sp = x$scaling1$species
+si = x$scaling1$sites
+
+} else if(scaling == 2) {
+
 # The species are at the centroids (barycentres) of the sites
 # This projection preserves the chi-square distance among the species
-ranF = Fhat.range[2,] - Fhat.range[1,]
-ranV = Vhat.range[2,] - Vhat.range[1,]
-ran.x = max(ranF[1], ranV[1])
-xmin = min(Vhat.range[1,1], Fhat.range[1,1]) - ran.x/8
-xmax = max(Vhat.range[2,1], Fhat.range[2,1]) + ran.x/3
-ymin = min(Vhat.range[1,2], Fhat.range[1,2])
-ymax = max(Vhat.range[2,2], Fhat.range[2,2])
-#
-plot(x$Vhat[,1:2], asp=aspect, pch=20, cex=cex, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab="CA axis 1", ylab="CA axis 2", col=x$color.sites)
-text(x$Vhat[,1:2], labels=x$site.names, cex=cex, pos=4, offset=0.5, col=x$color.sites)
-points(x$Fhat[,1:2], pch=22, cex=cex, col=x$color.sp)
-text(x$Fhat[,1:2], labels=x$sp.names, cex=cex, pos=4, offset=0.5, col=x$color.sp)
-title(main = c("CA biplot","scaling type 2"), family="serif")
+type = "scaling type 2"
+sp = x$scaling2$species
+si = x$scaling2$sites
 
-} else {
+} else if(scaling == 3) {
 
-# Biplot, scaling type = 3: plot F for sites, Fhat for species
-# This projection preserves the chi-square distance among the sites and species
-ranF    = F.range[2,] - F.range[1,]
-ranFhat = Fhat.range[2,] - Fhat.range[1,]
-ran.x = max(ranF[1], ranFhat[1])
-xmin = min(Fhat.range[1,1], F.range[1,1]) - ran.x/8
-xmax = max(Fhat.range[2,1], F.range[2,1]) + ran.x/3
-ymin = min(Fhat.range[1,2], F.range[1,2])
-ymax = max(Fhat.range[2,2], F.range[2,2])
-#
-plot(x$F[,1:2], asp=aspect, pch=20, cex=cex, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab="CA axis 1", ylab="CA axis 2", col=x$color.sites)
-text(x$F[,1:2], labels=x$site.names, cex=cex, pos=4, offset=0.5, col=x$color.sites)
-points(x$Fhat[,1:2], pch=22, cex=cex, col=x$color.sp)
-text(x$Fhat[,1:2], labels=x$sp.names, cex=cex, pos=4, offset=0.5, col=x$color.sp)
-title(main = c("CA biplot","scaling type 3"), family="serif")
+# Biplot, scaling = 3 (Symmetric scaling in Canoco)
+type = "scaling type 3"
+sp = x$scaling3$species
+si = x$scaling3$sites
+
+} else if(scaling == 4) {
+
+# For contingency tables --
+# Preserves the chi-square distance among the rows and among the columns
+type = "scaling type 4"
+sp = x$scaling2$species
+si = x$scaling1$sites
+
+} else { 
+
+stop("Program stopped: error in scaling type")
 }
+
+# Find the limits of the axes
+sp.range = apply(sp[,c(xax,yax)],2,range)
+si.range = apply(si[,c(xax,yax)],2,range)
+
+# Biplot: plot 'si' for sites, 'sp' for species
+ran.si = si.range[2,] - si.range[1,]
+ran.sp = sp.range[2,] - sp.range[1,]
+ran.x = max(ran.si[1], ran.sp[1])
+xmin = min(sp.range[1,1], si.range[1,1]) - ran.x/8
+xmax = max(sp.range[2,1], si.range[2,1]) + ran.x/3
+ymin = min(sp.range[1,2], si.range[1,2])
+ymax = max(sp.range[2,2], si.range[2,2])
+#
+plot(si[,c(xax,yax)], asp=aspect, pch=20, cex=cex, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab=paste("CA axis",xax), ylab=paste("CA axis",yax), col=color.sites)
+text(si[,c(xax,yax)], labels=si.names, cex=cex, pos=4, offset=0.5, col=color.sites)
+points(sp[,c(xax,yax)], pch=22, cex=cex, col=color.sp)
+text(sp[,c(xax,yax)], labels=sp.names, cex=cex, pos=4, offset=0.5, col=color.sp)
+title(main = c("CA biplot",type), family="serif")
 #
 invisible()
 }
