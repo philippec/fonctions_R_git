@@ -25,16 +25,6 @@ zip -f "$DEST/PCA.zip" *
 cd "../../"
 #zip -f -j "$DEST/PCA.zip" "PCA-CA/PCA/*"
 
-R CMD build kendall.W
-R CMD build --binary kendall.W
-R CMD build CADM
-R CMD build --binary CADM
-R CMD build lmorigin
-R CMD build --binary lmorigin
-R CMD build mantel.correlog
-R CMD build --binary mantel.correlog
-R CMD build parafit
-R CMD build --binary parafit
 R CMD build rdaTest
 R CMD build --binary rdaTest
 
