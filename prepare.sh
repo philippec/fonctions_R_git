@@ -20,7 +20,8 @@ zip -f -D -r "$DEST/rdaTest.zip" "rdaTest"
 
 cp "quickPCNM.R" "$DEST/quickPCNM-770.R"
 zip -f -D "$DEST/quickPCNM-770.R.zip" "$DEST/quickPCNM-770.R"
+#zip -j "$DEST/quickPCNM-770.R.zip" "$DEST/quickPCNM-770.R"
 rm "$DEST/quickPCNM-770.R"
 
-zip -f -D -r "$DEST/CA.zip" "PCA-CA/CA"
-zip -f -D -r "$DEST/PCA.zip" "PCA-CA/PCA"
+zip -f -j "$DEST/CA.zip" "PCA-CA/CA/*"
+zip -f -j "$DEST/PCA.zip" "PCA-CA/PCA/*"
