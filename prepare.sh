@@ -29,6 +29,8 @@ zip -f "$DEST/PCA.zip" *
 cd "../../"
 #zip -f -j "$DEST/PCA.zip" "PCA-CA/PCA/*"
 
+R CMD build const.clust
+R CMD build --binary const.clust
 R CMD build rdaTest
 R CMD build --binary rdaTest
 
