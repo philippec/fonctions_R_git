@@ -1,0 +1,10 @@
+Package: geodist
+Type: Package
+Title: Computes geographic distances between points
+Version: 1.0
+Date: 2007-10-29
+Author: Philippe Casgrain
+Maintainer: Philippe Casgrain <casgrain@exchange.umontreal.ca>
+Description: Given a set of coordinates, you can create a distance
+             matrix (0 on diagonal) in one of five units.
+License: LGPL
