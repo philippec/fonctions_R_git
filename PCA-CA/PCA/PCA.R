@@ -18,10 +18,11 @@
    Y.cent = apply(Y, 2, scale, center=TRUE, scale=stand)
    Y.cov = cov(Y.cent)
    Y.eig = eigen(Y.cov)
-   U  = Y.eig$vectors
+   k = length(which(Y.eig$values > 1e-10))
+   U  = Y.eig$vectors[,1:k]
    F  = Y.cent %*% U
-   U2 = U %*% diag(Y.eig$value^(0.5))
-   G  = F %*% diag(Y.eig$value^(-0.5))
+   U2 = U %*% diag(Y.eig$value[1:k]^(0.5))
+   G  = F %*% diag(Y.eig$value[1:k]^(-0.5))
    rownames(F)  = obj.names
    rownames(U)  = var.names
    rownames(G)  = obj.names
@@ -29,16 +30,11 @@
 #
 # Fractions of variance
    varY = sum(diag(Y.cov))
-   nvalues = min(size[1]-1, size[2])
-   eigval = vector(length=nvalues)
-   relative = vector(length=nvalues)
-   rel.cum = vector(length=nvalues)
-   for(k in 1:nvalues) { 
-      eigval[k] = Y.eig$values[k]
-      relative[k] = Y.eig$values[k]/varY
-      }
+   eigval = Y.eig$values[1:k]
+   relative = eigval/varY
+   rel.cum = vector(length=k)
    rel.cum[1] = relative[1]
-   for(k in 2:nvalues) { rel.cum[k] = rel.cum[k-1] + relative[k] }
+   for(kk in 2:k) { rel.cum[kk] = rel.cum[kk-1] + relative[kk] }
 #
 out <- list(total.var=varY, eigenvalues=eigval, rel.eigen=relative, 
        rel.cum.eigen=rel.cum, U=U, F=F, U2=U2, G=G, stand=stand, 
