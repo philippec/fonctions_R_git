@@ -189,8 +189,8 @@ res
 		# Update links.mat: fuse rows and columns of i2 and j2
 		vec <- links.mat[i2,] + links.mat[j2,]
 		vec[vec > 1] = 1
-		links.mat[i2,] <- vec
-		links.mat[,i2] <- vec
+		links.mat[i2,] <- as.numeric(vec)
+		links.mat[,i2] <- as.numeric(vec)
 		mat <- matrix(NA,n,n)
 		mat[links.mat > 0] <- 1
 		

@@ -30,8 +30,7 @@ if(k2 > 15) {
 	cat("Calculations may take a long time.\n")
 	cat("Type 'Y' if yes, 'N' if no.\n")
 	answer <- toupper(scan(file="",what="character",nlines=1,quiet=TRUE))
-	if((answer=="n") | (answer=="N")) k2 <- ceiling(nlev/2)
-	stop("Calculation interrupted by user")
+	if((answer=="n") | (answer=="N")) stop("Calculation interrupted by user")
 	}
 #
 # Construct data.frame "out" containing factors representing the partitions

@@ -87,7 +87,7 @@ The output of the \code{\link{map.hclust}} function is a pdf file containing map
 }
 
 \author{ Pierre Legendre, Universite de Montreal, 
-based on Fortran function hclust.f by F. Murtagh, modified for R by R. Hiaka.}
+based on Fortran function hclust.f by F. Murtagh, modified for R by R. Ihaka.}
 
 \seealso{ \code{\link{hclust}} }
 
@@ -173,9 +173,10 @@ links.mat.mite <- listw2mat(listW)
 D.mite <- dist(mite.hel)
 res.mite <- constrained.clust(D.mite, links.mat.mite)
 
-# 3. Cross-validation
-cross.mite <- cross(mite.hel, res.mite)
+# 3. Cross-validation (long procedure)
+cross.mite <- cross(mite.hel, res.mite, k2=15)
 summary(cross.mite)
+cross.mite$AIC
 
 # 4. Plot maps of constrained clustering steps from 2 to 10 groups
 map.hclust(res.mite, mite.xy, 2, 10, pos=4)
@@ -206,6 +207,7 @@ res.fish <- constrained.clust(D.fish, links.mat.fish)
 
 # 3. Cross-validation
 cross.fish <- cross(fish.hel, res.fish)
+cross.fish$AIC
 
 # 4. Plot maps of constrained clustering steps from 2 to 8 groups
 coord.fish <- 1:30

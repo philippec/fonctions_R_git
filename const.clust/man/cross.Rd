@@ -8,7 +8,7 @@
 }
 
 \usage{
-cross <- function(Y, res, k1=2, k2=NULL, xv="min", xvmult=100)
+cross(Y, res, k1=2, k2=NULL, xv="min", xvmult=100)
 }
 
 \arguments{
@@ -26,7 +26,9 @@ cross <- function(Y, res, k1=2, k2=NULL, xv="min", xvmult=100)
 
 } 
 
-\details{ The function constructs a file with the membership of all levels obtained from hierarchical clustering, and computes various statistics that may help determine the best number of groups: AICc, the Calinski-Harabasz criterion (C-H), and cross-validation residual error. }
+\details{ The function constructs a file with the membership of all levels obtained from hierarchical clustering, and computes various statistics that may help determine the best number of groups: AICc, the Calinski-Harabasz criterion (C-H), and cross-validation residual error.
+
+If more than 15 groups (k2 > 15) are to be tested, the user has to confirm that choice. There is also a warning stating that the cross-validation may take a long time. }
 
 \value{ 
   \item{AIC }{ A table with 6 columns showing (1) the R-square, which is a simple information and not a criterion to identify the best partition; (2) the AICc value (the lowest value is best); (3) the Calinski-Harabasz criterion (C-H) for partitions of the objects into k1 to k2 groups (the highest value is best); (4) the P-value associated with C-H (this p-value is used here as a model criterion, not as the result of a test of hypothesis; the lowest value is best); (5) the cross-validation residual error (cvre; the lowest value is best) and (6) the  number of groups (ngr.cross) corresponding to the minimum of criterion 'cvre'. The \code{cvre} cross-validation criterion is more conservative than \code{AIC} and \code{P(C-H)}; it may thus be seen as a better criterion in most cases. }
@@ -94,9 +96,10 @@ links.mat.mite <- listw2mat(listW)
 D.mite <- dist(mite.hel)
 res.mite <- constrained.clust(D.mite, links.mat.mite)
 
-# 3. Cross-validation
-cross.mite <- cross(mite.hel, res.mite)
+# 3. Cross-validation (long procedure)
+cross.mite <- cross(mite.hel, res.mite, k2=15)
 summary(cross.mite)
+cross.mite$AIC
 
 ###
 ### Example of spatial transect or time series
@@ -125,6 +128,7 @@ res.fish <- constrained.clust(D.fish, links.mat.fish)
 # 3. Cross-validation
 cross.fish <- cross(fish.hel, res.fish)
 summary(cross.fish)
+cross.fish$AIC
 }
 
 \keyword{ multivariate }
