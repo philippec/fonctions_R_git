@@ -1,44 +1,40 @@
-graph.rdaTest <- function(rdaTest, xax=1, yax=2,  scaling=1,
-                plot.type="notchosen", binary=NULL, bin.pch=26,
-            	width=6,height=6, xlim=NULL, ylim=NULL, 
+graph.rdaTest <- function(rdaTest.out, xax=1, yax=2, scaling=1,
+                plot.type="notchosen", binary=NULL, 
+            	height=6, width=6, xlim=NULL, ylim=NULL, 
                 ell=NULL, alpha=0.95, ell.axis=FALSE, 
-                
-              	mul.spc=0.8, mul.env=0.90, mul.text=0.10,
-                pos.ell=NULL, pos.bin=NULL, pos.site=1,
-                label.env=TRUE, label.spc=TRUE, label.site=TRUE, label.ell=TRUE,
-               	col.env="blue", col.spc="red", col.site="black",col.ell="black",
-               	lty.env=1, lty.spc=1, lty.ell=1,  lty.axis=2,
-                cex=1, cex.lab=1,cex.axis=1,
-                lwd=1, len=0.1, 
-                type="p",
-                saveplot=FALSE, path=NULL,
-                mai.perc=NULL)
-# Version 1.0
+              	mul.spc=0.8, mul.env=0.90, mul.text=0.10, 
+                pos.ell=NULL, pos.bin=NULL, pos.site=1, type="p",                 
+                label.env=TRUE, label.spc=TRUE, label.site=TRUE, label.ell=TRUE, 
+               	col.env="blue", col.spc="red", col.site="black",col.ell="black", 
+               	lty.env=1, lty.spc=1, lty.ell=1, lty.axis=2, 
+                cex=1, cex.lab=1, cex.axis=1, lwd=1, len=0.1, 
+                saveplot=FALSE, path=NULL, mar.perc=NULL)
+# Version 1.1
 
 # Function to produce triplots from the output list of function 'rdaTest'
 #
 # SŽbastien Durand, UniversitŽ de MontrŽal, April 2005
 #
-# rdaTest: name of the rdaTest output object. The most simple call to this function
-#    is to provide only the 'rdaTest' output object name. Ex.: graph.rdaTest(toto)
+# rdaTest.out: name of the rdaTest output object. The most simple call to this function
+#    is to provide only the 'rdaTest.out' output object name. Ex.: graph.rdaTest(toto)
 #
 # The following parameters can also be specified by the user:
 #
-# xax and yax: the matrix columns to be used to plot in the rda graph.
+# xax and yax: the matrix columns to be used to plot the rda graph.
 #    These value can be negative; if so, the plot axes will be reversed
 # binary: a vector specifying which of the environmental variables are binary;
 #    the corresponding data points will be averaged and represented by a symbol
 #    instead of an arrow, as in Canoco
-# scaling: allows the user to choose between the two scaling type 1 or 2
-# plot.type: either "F" or "Z" -- "F"= site scores, "Z" = fitted site scores
-# saveplot: if you want to save the plot to an .pdf file;
+# scaling: allows the user to choose between the two scaling types, 1 or 2.
+# plot.type: either "F" or "Z" -- "F"= site scores, "Z" = fitted site scores.
+# saveplot: if you want to save the plot to a .pdf file;
 #    if set to FALSE, the plot will only be plotted in a window (quartz);
-#    If set to TRUE, no graph will be plotted on screen, and a pdf file will created
+#    if set to TRUE, no graph will be plotted on screen; a pdf file will created.
 # path: complete path to the file in which the plot will be saved; 
 #    example: "~/Desktop/toto.pdf"
 # width and height: sizes in inches of the drawn plot
 # xlim and ylim: vectors describing the minimum and maximum plotted region 
-# lwd: line width for the axis, arrow, and ellipses
+# lwd: line width for the axes, arrows, and ellipses
 # len: length of the arrow heads
 #
 # Parameters related to the confidence ellipses around groups of points:
@@ -51,6 +47,8 @@ graph.rdaTest <- function(rdaTest, xax=1, yax=2,  scaling=1,
 # pos.ell: offset the group names relative to the ellipse center:
 #    1=bottom, 2=left, 3=top, 4=right
 # pos.bin: offset the names of the binary variables:
+#    1=bottom, 2=left, 3=top, 4=right
+# pos.site: offset the names of the site labels:
 #    1=bottom, 2=left, 3=top, 4=right
 #
 # lty.env: the environmental variables arrow drawing type
@@ -67,7 +65,7 @@ graph.rdaTest <- function(rdaTest, xax=1, yax=2,  scaling=1,
 #    default is 10%
 # type: by default, the sites are represented as empty circles in the plot; 
 #    type = "n" will not display the sites 
-# mai.perc:  allows to increase or decrease the margin size, using a percentage of the 
+# mar.perc:  allows to increase or decrease the margin size, using a percentage of the 
 #	   total width and height of the graph; use a value between 0 and 1
 # label...:  using logicals, define whether the labels will be plotted
 
@@ -130,9 +128,9 @@ graph.rdaTest <- function(rdaTest, xax=1, yax=2,  scaling=1,
 		yinv <- (-1)
 		yax  <- -(yax)
 	} else {}
-	if(xax > ncol(rdaTest$F))
+	if(xax > ncol(rdaTest.out$F))
 		stop("Their are not enough canonical axes; change the xax value")
-	if(yax > ncol(rdaTest$F))
+	if(yax > ncol(rdaTest.out$F))
 		stop("Their are not enough canonical axes; change the yax value")
 
 # cat("Please choose a file with the different partitions","\n") 
@@ -144,41 +142,41 @@ graph.rdaTest <- function(rdaTest, xax=1, yax=2,  scaling=1,
 		
 # Scaling 	
 	if(scaling != 1) {
-		rdaTest$F<-rdaTest$FSc2
-		rdaTest$Z<-rdaTest$ZSc2
-		rdaTest$U<-rdaTest$USc2
-		rdaTest$biplotScores1<-rdaTest$biplotScores2
+		rdaTest.out$F<-rdaTest.out$FSc2
+		rdaTest.out$Z<-rdaTest.out$ZSc2
+		rdaTest.out$U<-rdaTest.out$USc2
+		rdaTest.out$biplotScores1<-rdaTest.out$biplotScores2
 	} else {}
 
 	plot.type<-toupper(as.character(plot.type))
 	if(plot.type=="notchosen" | plot.type!="F" & plot.type!="Z"){
 		while(plot.type!="F" & plot.type!="Z"){
-			cat("Choose a functionnal plot.type: type 'Z' for fitted site scores",
+			cat("Choose a functional plot.type: type 'Z' for fitted site scores",
 				" or 'F' for site scores","\n") 
 			plot.type<-toupper(scan(file="",what="character",nlines=1,quiet=T))
 		}
 	} else {}
 	
 	if(plot.type != "Z") {
-		rdaTest$Z<-rdaTest$F
+		rdaTest.out$Z<-rdaTest.out$F
 	} else {}
 	
 	if(!is.null(binary)) {
-		binvar<-matrix(NA,length(binary),ncol(rdaTest$Z))
+		binvar<-matrix(NA,length(binary),ncol(rdaTest.out$Z))
 		j=1
 		for(i in binary) {
-			tmp<-which(rdaTest$X.mat[,i]!=0)
-			binvar[j,]<-apply(rdaTest$Z[tmp,]*rdaTest$X.mat[tmp,i],2,mean)
+			tmp<-which(rdaTest.out$X.mat[,i]!=0)
+			binvar[j,]<-apply(rdaTest.out$Z[tmp,]*rdaTest.out$X.mat[tmp,i],2,mean)
 			j=j+1
 		}
-		colnames(binvar)<-colnames(rdaTest$Z)
-		rownames(binvar)<-colnames(rdaTest$X.mat)[binary]
+		colnames(binvar)<-colnames(rdaTest.out$Z)
+		rownames(binvar)<-colnames(rdaTest.out$X.mat)[binary]
 		# rownames(binvar)<-c("Ra","Ri","Rs","Lv","Ln","Ll","Ls","Lf","Sc","Iba","Vl",
 		#    "Vp","Vh","Vc","Tw","Tb","Hd","At","As","Pb","Li","Cl","Ch","Cb")
 		# rownames(binvar)<-c("a","b","c","d","e","f","g","h","i","j","k","l","m","n",
 		#    "o","p","q","r","s","t","u","v","w","x")
 	}
-	# rownames(rdaTest$U)<-c("1","2","3","4","5","6","7","8","9","10","11","12","13",
+	# rownames(rdaTest.out$U)<-c("1","2","3","4","5","6","7","8","9","10","11","12","13",
 	#    "14","15","16","17","18","19","20","21")
 
 	# Text adaptation
@@ -195,30 +193,30 @@ graph.rdaTest <- function(rdaTest, xax=1, yax=2,  scaling=1,
 
 # Check and select plot.type and application
 	
-	#cc<-range(xinv*rdaTest$U[,xax]);dd<-range(yinv*rdaTest$U[,yax])
+	#cc<-range(xinv*rdaTest.out$U[,xax]);dd<-range(yinv*rdaTest.out$U[,yax])
 	# type="n"
 	#Control the marging size
-	if(length(mai.perc)!=0)
-		par(mai=c(height*mai.perc,width*mai.perc,height*mai.perc/2,width*mai.perc/2))
+	if(length(mar.perc)!=0)
+		par(mai=c(height*mar.perc,width*mar.perc,height*mar.perc/2,width*mar.perc/2))
 		
-	plot(xinv*rdaTest$Z[,xax],yinv*rdaTest$Z[,yax],xlim =xlim,ylim=ylim,asp=1,cex = cex, cex.lab = cex.lab, cex.axis = cex.axis,
+	plot(xinv*rdaTest.out$Z[,xax],yinv*rdaTest.out$Z[,yax],xlim =xlim,ylim=ylim,asp=1,cex = cex, cex.lab = cex.lab, cex.axis = cex.axis,
 		xlab=paste("Canonical axis",xax),ylab=paste("Canonical axis",yax),type=type)
 	# Print zero axis
 	abline(h = 0, lty = lty.axis, lwd=lwd)
     abline(v = 0, lty = lty.axis, lwd=lwd)
 	if(label.site==TRUE)
-		text(xinv*rdaTest$Z[,xax],yinv*rdaTest$Z[,yax],rownames(rdaTest$Z), col = col.site, cex = cex,pos=pos.site)
+		text(xinv*rdaTest.out$Z[,xax],yinv*rdaTest.out$Z[,yax],rownames(rdaTest.out$Z), col = col.site, cex = cex,pos=pos.site)
 	
-	mult.spc=multi.factor(rdaTest$Z,rdaTest$U,xax=xax,yax=yax,xinv=xinv,yinv=yinv,
+	mult.spc=multi.factor(rdaTest.out$Z,rdaTest.out$U,xax=xax,yax=yax,xinv=xinv,yinv=yinv,
 			percentage=mul.spc)
-	mult.env<-multi.factor(rdaTest$Z,rdaTest$biplotScores1,xax=xax,yax=yax,xinv=xinv,
+	mult.env<-multi.factor(rdaTest.out$Z,rdaTest.out$biplotScores1,xax=xax,yax=yax,xinv=xinv,
 		yinv=yinv,percentage=mul.env)
 	# Drawing of species variable arrows
-	arrows(x0=0,y0=0, x1=xinv*rdaTest$U[,xax]*mult.spc, y1=yinv*rdaTest$U[,yax]*mult.spc, 
+	arrows(x0=0,y0=0, x1=xinv*rdaTest.out$U[,xax]*mult.spc, y1=yinv*rdaTest.out$U[,yax]*mult.spc, 
 		col=col.spc,code=2, lty=lty.spc, len=len,lwd=1)
 	if(label.spc==TRUE)
-		text(x=mul.text*mult.spc*xinv*rdaTest$U[,xax],y=mul.text*mult.spc*yinv*rdaTest$U[,yax], 
-				rownames(rdaTest$U), col = col.spc, cex = cex)
+		text(x=mul.text*mult.spc*xinv*rdaTest.out$U[,xax],y=mul.text*mult.spc*yinv*rdaTest.out$U[,yax], 
+				rownames(rdaTest.out$U), col = col.spc, cex = cex)
 	
 	if(!is.null(binary)) {
 	# Draw environmental variable points since they are binary variables	
@@ -226,18 +224,18 @@ graph.rdaTest <- function(rdaTest, xax=1, yax=2,  scaling=1,
 		if(label.env==TRUE)
 			text(x=xinv*binvar[,xax],y=yinv*binvar[,yax], label=rownames(binvar), 
 				col=col.env,pos=pos.bin,cex=cex)
- 		remain<-seq(1, ncol(rdaTest$X.mat),by=1)[-binary]
+ 		remain<-seq(1, ncol(rdaTest.out$X.mat),by=1)[-binary]
 	}else{
-		remain<-seq(1, ncol(rdaTest$X.mat),by=1)	
+		remain<-seq(1, ncol(rdaTest.out$X.mat),by=1)	
 	}
 	if(length(remain)!=0) {
-		arrows(x0=0,y0=0,xinv*rdaTest$biplotScores1[remain,xax]*mult.env,
-			yinv*rdaTest$biplotScores1[remain,yax]*mult.env, lty=lty.env,col=col.env, 
+		arrows(x0=0,y0=0,xinv*rdaTest.out$biplotScores1[remain,xax]*mult.env,
+			yinv*rdaTest.out$biplotScores1[remain,yax]*mult.env, lty=lty.env,col=col.env, 
 			code=2, len=len,lwd=1)
 		if(label.env==TRUE)
-			text(x=mul.text*mult.env*xinv*rdaTest$biplotScores1[remain,xax], 
-				y=mul.text*mult.env*yinv*rdaTest$biplotScores1[remain,yax], 
-				rownames(rdaTest$biplotScores1)[remain], col = col.env,cex=cex)
+			text(x=mul.text*mult.env*xinv*rdaTest.out$biplotScores1[remain,xax], 
+				y=mul.text*mult.env*yinv*rdaTest.out$biplotScores1[remain,yax], 
+				rownames(rdaTest.out$biplotScores1)[remain], col = col.env,cex=cex)
     } else {}	
 	# Draw environmental variable arrows	
 	len=9
@@ -250,11 +248,11 @@ graph.rdaTest <- function(rdaTest, xax=1, yax=2,  scaling=1,
 		for(i in name.ell) {
 			numb<-which(ell==i)
 			if(label.ell==TRUE) {
-				ellipse(XY.mat=cbind(xinv*rdaTest$Z[numb,xax],yinv*rdaTest$Z[numb,yax]),
+				ellipse(XY.mat=cbind(xinv*rdaTest.out$Z[numb,xax],yinv*rdaTest.out$Z[numb,yax]),
 					alpha=alpha,ell.type=lty.ell,ell.lwd=lwd, p.axis=ell.axis,
 					name.pos=pos.ell,col=col.ell,name=i)
 			} else {
-				ellipse(XY.mat=cbind(xinv*rdaTest$Z[numb,xax],yinv*rdaTest$Z[numb,yax]),
+				ellipse(XY.mat=cbind(xinv*rdaTest.out$Z[numb,xax],yinv*rdaTest.out$Z[numb,yax]),
 				alpha=alpha,ell.type=lty.ell,ell.lwd=lwd, p.axis=ell.axis,
 				name.pos=pos.ell,col=col.ell,name=NULL)
 			}

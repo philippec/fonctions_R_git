@@ -352,7 +352,7 @@ rdaTest <- function(YY.mat, XX.mat, WW.mat=NULL,
 
 	return(list(VIF=vif.res, canEigval=canEigval, U=U, USc2=UL, F=F, Z=Z, FSc2=FSc2, 
 	       ZSc2=ZSc2, biplotScores1=posX, biplotScores2=posXSc2, FitSpe=Frac$rdaFitSpe, 
-	       VarExpl=Frac$VarExpl, ProbFrda=prob, X.mat=X.mat))
+	       VarExpl=Frac$VarExpl, ProbFrda=prob, X.mat=X.mat, Rsq=Rsquare))
 }
 
 
