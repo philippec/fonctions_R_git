@@ -19,7 +19,6 @@ if(min(Y) < 0) stop("Negative values not allowed in CA")
 # Calculate three basic parameters
 n = nrow(Y)
 p = ncol(Y)
-n.eigval = min((n-1),(p-1))
 #
 # Save the row and column names
 site.names = rownames(Y)
@@ -39,21 +38,23 @@ inertia = sum(Qbar^2)
 if(use.svd) {
    # Analyse Qbar by 'svd'
    svd.res = svd(Qbar)
-   eigenvalues = svd.res$d[1:n.eigval]^2
-   U = svd.res$v[,1:n.eigval]
-   Uhat = svd.res$u[,1:n.eigval]
+   k = length(which(svd.res$d > 1e-8))
+   eigenvalues = svd.res$d[1:k]^2
+   U = svd.res$v[,1:k]
+   Uhat = svd.res$u[,1:k]
    } else {
    # Alternative analysis or Qbar by 'eigen'
    Qbar = as.matrix(Qbar)
    QprQ.eig = eigen( t(Qbar) %*% Qbar )
-   eigenvalues = QprQ.eig$values[1:n.eigval]
-   U = QprQ.eig$vectors[,1:n.eigval]
+   k = length(which(QprQ.eig$values > 1e-16))
+   eigenvalues = QprQ.eig$values[1:k]
+   U = QprQ.eig$vectors[,1:k]
    Uhat = Qbar %*% U %*% diag(eigenvalues^(-0.5))
    }
 #
 rel.eigen = eigenvalues/inertia
 rel.cum = rel.eigen[1]
-for(k in 2:n.eigval) { rel.cum=c(rel.cum, (rel.cum[k-1] + rel.eigen[k])) }
+for(kk in 2:k) { rel.cum = c(rel.cum, (rel.cum[kk-1] + rel.eigen[kk])) }
 #
 # Construct matrices V, Vhat, F, and Fhat for the ordination biplots
 V = diag(p.j^(-0.5)) %*% U
@@ -86,7 +87,8 @@ out
 }
 
 `biplot.CA` <-
-    function(x, ...)
+    function(x, scaling=12, aspect=1, ...)
+# Use aspect=NA to remove the effect of parameter 'asp' in the graphs
 {
 if(length(x$eigenvalues) < 2) stop("There is a single eigenvalue. No plot can be produced.")
 #
@@ -96,12 +98,13 @@ Vhat.range = apply(x$Vhat[,1:2],2,range)
 F.range = apply(x$F[,1:2],2,range)
 Fhat.range = apply(x$Fhat[,1:2],2,range)
 #
+if(scaling == 12) {
 # Create a drawing window for two graphs
 par(mfrow=c(1,2))
 #
 # Biplot, scaling type = 1: plot F for sites, V for species
 # The sites are at the centroids (barycentres) of the species
-# This projection preserves the  chi-square distance among the sites
+# This projection preserves the chi-square distance among the sites
 ranF = F.range[2,] - F.range[1,]
 ranV = V.range[2,] - V.range[1,]
 ran.x = max(ranF[1], ranV[1])
@@ -110,7 +113,7 @@ xmax = max(V.range[2,1], F.range[2,1]) + ran.x/3
 ymin = min(V.range[1,2], F.range[1,2])
 ymax = max(V.range[2,2], F.range[2,2])
 #
-plot(x$F[,1:2], asp=1, pch=20, cex=2, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab="CA axis 1", ylab="CA axis 2", col=x$color.sites)
+plot(x$F[,1:2], asp=aspect, pch=20, cex=2, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab="CA axis 1", ylab="CA axis 2", col=x$color.sites)
 text(x$F[,1:2], labels=x$site.names, pos=4, offset=0.5, col=x$color.sites)
 points(x$V[,1:2], pch=22, cex=2, col=x$color.sp)
 text(x$V[,1:2], labels=x$sp.names, pos=4, offset=0.5, col=x$color.sp)
@@ -127,11 +130,30 @@ xmax = max(Vhat.range[2,1], Fhat.range[2,1]) + ran.x/3
 ymin = min(Vhat.range[1,2], Fhat.range[1,2])
 ymax = max(Vhat.range[2,2], Fhat.range[2,2])
 #
-plot(x$Vhat[,1:2], asp=1, pch=20, cex=2, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab="CA axis 1", ylab="CA axis 2", col=x$color.sites)
+plot(x$Vhat[,1:2], asp=aspect, pch=20, cex=2, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab="CA axis 1", ylab="CA axis 2", col=x$color.sites)
 text(x$Vhat[,1:2], labels=x$site.names, pos=4, offset=0.5, col=x$color.sites)
 points(x$Fhat[,1:2], pch=22, cex=2, col=x$color.sp)
 text(x$Fhat[,1:2], labels=x$sp.names, pos=4, offset=0.5, col=x$color.sp)
 title(main = c("CA biplot","scaling type 2"), family="serif")
+
+} else {
+
+# Biplot, scaling type = 3: plot F for sites, Fhat for species
+# This projection preserves the chi-square distance among the sites and species
+ranF    = F.range[2,] - F.range[1,]
+ranFhat = Fhat.range[2,] - Fhat.range[1,]
+ran.x = max(ranF[1], ranFhat[1])
+xmin = min(Fhat.range[1,1], F.range[1,1]) - ran.x/8
+xmax = max(Fhat.range[2,1], F.range[2,1]) + ran.x/3
+ymin = min(Fhat.range[1,2], F.range[1,2])
+ymax = max(Fhat.range[2,2], F.range[2,2])
+#
+plot(x$F[,1:2], asp=aspect, pch=20, cex=2, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab="CA axis 1", ylab="CA axis 2", col=x$color.sites)
+text(x$F[,1:2], labels=x$site.names, pos=4, offset=0.5, col=x$color.sites)
+points(x$Fhat[,1:2], pch=22, cex=2, col=x$color.sp)
+text(x$Fhat[,1:2], labels=x$sp.names, pos=4, offset=0.5, col=x$color.sp)
+title(main = c("CA biplot","scaling type 3"), family="serif")
+}
 #
 invisible()
 }

@@ -1,19 +1,20 @@
 graph.rdaTest <- function(rdaTest.out, xax=1, yax=2, scaling=1,
-                plot.type="notchosen", binary=NULL, 
-            	height=6, width=6, xlim=NULL, ylim=NULL, 
+                graph.type="notchosen", plot.sites=TRUE, plot.spc=TRUE, plot.env=TRUE, 
+            	binary=NULL, height=6, width=6, xlim=NULL, ylim=NULL, 
                 ell=NULL, alpha=0.95, ell.axis=FALSE, 
               	mul.spc=0.8, mul.env=0.90, mul.text=0.10, 
-                pos.ell=NULL, pos.bin=NULL, pos.site=1, type="p",                 
-                label.env=TRUE, label.spc=TRUE, label.site=TRUE, label.ell=TRUE, 
+                pos.ell=NULL, pos.bin=NULL, pos.sites=1,                 
+                label.sites=TRUE, label.spc=TRUE, label.env=TRUE, label.ell=TRUE, 
                	col.env="blue", col.spc="red", col.site="black",col.ell="black", 
                	lty.env=1, lty.spc=1, lty.ell=1, lty.axis=2, 
                 cex=1, cex.lab=1, cex.axis=1, lwd=1, len=0.1, 
                 saveplot=FALSE, path=NULL, mar.perc=NULL)
-# Version 1.1
+# Version 1.2
 
 # Function to produce triplots from the output list of function 'rdaTest'
 #
-# Sbastien Durand, Universit de Montral, April 2005
+# Version 1.0: Sbastien Durand and Pierre Legendre, Universit de Montral, April 2005
+# Version 1.2: Pierre Legendre, Universit de Montral, April 2008
 #
 # rdaTest.out: name of the rdaTest output object. The most simple call to this function
 #    is to provide only the 'rdaTest.out' output object name. Ex.: graph.rdaTest(toto)
@@ -26,7 +27,7 @@ graph.rdaTest <- function(rdaTest.out, xax=1, yax=2, scaling=1,
 #    the corresponding data points will be averaged and represented by a symbol
 #    instead of an arrow, as in Canoco
 # scaling: allows the user to choose between the two scaling types, 1 or 2.
-# plot.type: either "F" or "Z" -- "F"= site scores, "Z" = fitted site scores.
+# graph.type: either "F" or "Z" -- "F"= site scores, "Z" = fitted site scores.
 # saveplot: if you want to save the plot to a .pdf file;
 #    if set to FALSE, the plot will only be plotted in a window (quartz);
 #    if set to TRUE, no graph will be plotted on screen; a pdf file will created.
@@ -48,7 +49,7 @@ graph.rdaTest <- function(rdaTest.out, xax=1, yax=2, scaling=1,
 #    1=bottom, 2=left, 3=top, 4=right
 # pos.bin: offset the names of the binary variables:
 #    1=bottom, 2=left, 3=top, 4=right
-# pos.site: offset the names of the site labels:
+# pos.sites: offset the names of the site labels:
 #    1=bottom, 2=left, 3=top, 4=right
 #
 # lty.env: the environmental variables arrow drawing type
@@ -56,7 +57,7 @@ graph.rdaTest <- function(rdaTest.out, xax=1, yax=2, scaling=1,
 # col.env: the environmental variables arrow and text color
 # col.spc: the species variables arrow and text color
 # lty.axis: the drawing type of axis, dotted, line, .... 
-# text.cex: the font size
+# cex.xxx: font size
 # mul.spc: multiplier based on the range of the plot (maximum for x and y); 
 #    changes proportionally to the length of the species arrows; 
 #    1 is the maximum relative length in the whole set of arrows
@@ -79,11 +80,11 @@ graph.rdaTest <- function(rdaTest.out, xax=1, yax=2, scaling=1,
 # Second example: assign objects to groups; change the default values to draw ellipses
 # result <- rdaTest(Y,X)
 # vec=c(1,1,1,2,3,2,3,2,3,2)
-# graph.rdaTest(result, plot.type="F", ell=vec, ell.axis=TRUE)
+# graph.rdaTest(result, graph.type="F", ell=vec, ell.axis=TRUE)
 #
 # Third example: change the default values to draw symbols for binary variables
 # result <- rdaTest(Y,X)
-# graph.rdaTest(result, plot.type="F", binary=c(2:4) )
+# graph.rdaTest(result, graph.type="F", binary=c(2:4) )
 #
 # Fourth example: reverse the orientation of the axes
 # result <- rdaTest(Y,X)
@@ -148,16 +149,16 @@ graph.rdaTest <- function(rdaTest.out, xax=1, yax=2, scaling=1,
 		rdaTest.out$biplotScores1<-rdaTest.out$biplotScores2
 	} else {}
 
-	plot.type<-toupper(as.character(plot.type))
-	if(plot.type=="notchosen" | plot.type!="F" & plot.type!="Z"){
-		while(plot.type!="F" & plot.type!="Z"){
-			cat("Choose a functional plot.type: type 'Z' for fitted site scores",
+	graph.type<-toupper(as.character(graph.type))
+	if(graph.type=="notchosen" | graph.type!="F" & graph.type!="Z"){
+		while(graph.type!="F" & graph.type!="Z"){
+			cat("Choose a functional graph.type: type 'Z' for fitted site scores",
 				" or 'F' for site scores","\n") 
-			plot.type<-toupper(scan(file="",what="character",nlines=1,quiet=T))
+			graph.type<-toupper(scan(file="",what="character",nlines=1,quiet=T))
 		}
 	} else {}
 	
-	if(plot.type != "Z") {
+	if(graph.type != "Z") {
 		rdaTest.out$Z<-rdaTest.out$F
 	} else {}
 	
@@ -182,44 +183,56 @@ graph.rdaTest <- function(rdaTest.out, xax=1, yax=2, scaling=1,
 	# Text adaptation
 	mul.text=mul.text+1
 	
-	type<-tolower(as.character(type))
-	if(type!="p" & type!="n") {
-		while(type!="n" & type!="p") {
-			cat("Please choose a functional character for 'type': use 'p' to display",
-				" sites or 'n' to not display them","\n") 
-			type<-tolower(scan(file="",what="character",nlines=1,quiet=T))
-		}
-	} else {}	
+	# type<-tolower(as.character(type))
+	# if(type!="p" & type!="n") {
+		# while(type!="n" & type!="p") {
+			# cat("Please choose a functional character for 'type': use 'p' to display",
+			# 	" sites or 'n' to not display them","\n") 
+			# type<-tolower(scan(file="",what="character",nlines=1,quiet=T))
+		# }
+	# } else {}	
 
-# Check and select plot.type and application
+# Draw the triplot
 	
-	#cc<-range(xinv*rdaTest.out$U[,xax]);dd<-range(yinv*rdaTest.out$U[,yax])
-	# type="n"
-	#Control the marging size
+	#Control marging size
 	if(length(mar.perc)!=0)
 		par(mai=c(height*mar.perc,width*mar.perc,height*mar.perc/2,width*mar.perc/2))
-		
-	plot(xinv*rdaTest.out$Z[,xax],yinv*rdaTest.out$Z[,yax],xlim =xlim,ylim=ylim,asp=1,cex = cex, cex.lab = cex.lab, cex.axis = cex.axis,
+
+    # Plot site points and labels
+    if(plot.sites) { type="p" }
+       else {
+       type="n"
+       label.sites=FALSE
+       }
+	plot(xinv*rdaTest.out$Z[,xax],yinv*rdaTest.out$Z[,yax],xlim =xlim,ylim=ylim,asp=1,
+	    cex = cex, cex.lab = cex.lab, cex.axis = cex.axis,
 		xlab=paste("Canonical axis",xax),ylab=paste("Canonical axis",yax),type=type)
-	# Print zero axis
+	if(label.sites) {
+		text(xinv*rdaTest.out$Z[,xax],yinv*rdaTest.out$Z[,yax],rownames(rdaTest.out$Z), 
+		col = col.site, cex = cex,pos=pos.sites)
+		}
+
+	# Draw abscissa and ordinate at point (0,0)
 	abline(h = 0, lty = lty.axis, lwd=lwd)
     abline(v = 0, lty = lty.axis, lwd=lwd)
-	if(label.site==TRUE)
-		text(xinv*rdaTest.out$Z[,xax],yinv*rdaTest.out$Z[,yax],rownames(rdaTest.out$Z), col = col.site, cex = cex,pos=pos.site)
 	
 	mult.spc=multi.factor(rdaTest.out$Z,rdaTest.out$U,xax=xax,yax=yax,xinv=xinv,yinv=yinv,
 			percentage=mul.spc)
 	mult.env<-multi.factor(rdaTest.out$Z,rdaTest.out$biplotScores1,xax=xax,yax=yax,xinv=xinv,
 		yinv=yinv,percentage=mul.env)
-	# Drawing of species variable arrows
+
+	# Draw species (or other response variable) arrows
+	if(plot.spc) {
 	arrows(x0=0,y0=0, x1=xinv*rdaTest.out$U[,xax]*mult.spc, y1=yinv*rdaTest.out$U[,yax]*mult.spc, 
 		col=col.spc,code=2, lty=lty.spc, len=len,lwd=1)
 	if(label.spc==TRUE)
 		text(x=mul.text*mult.spc*xinv*rdaTest.out$U[,xax],y=mul.text*mult.spc*yinv*rdaTest.out$U[,yax], 
 				rownames(rdaTest.out$U), col = col.spc, cex = cex)
-	
+	}
+
+    if(plot.env) {
+	# Draw environmental variable points if there are binary variables	
 	if(!is.null(binary)) {
-	# Draw environmental variable points since they are binary variables	
 		points(x=xinv*binvar[,xax],y=yinv*binvar[,yax], pch=10,col=col.env)
 		if(label.env==TRUE)
 			text(x=xinv*binvar[,xax],y=yinv*binvar[,yax], label=rownames(binvar), 
@@ -237,10 +250,13 @@ graph.rdaTest <- function(rdaTest.out, xax=1, yax=2, scaling=1,
 				y=mul.text*mult.env*yinv*rdaTest.out$biplotScores1[remain,yax], 
 				rownames(rdaTest.out$biplotScores1)[remain], col = col.env,cex=cex)
     } else {}	
+
 	# Draw environmental variable arrows	
 	len=9
-	axis(3, at = seq(-mult.env,mult.env,length=len), labels =  round(seq(-1,1,length=len),digit=2), col = col.env,cex.axis=cex.axis)
-   	axis(4, at = seq(-mult.env,mult.env,length=len), labels =  round(seq(-1,1,length=len),digit=2), col = col.env,cex.axis=cex.axis)
+	axis(3, at = seq(-mult.env,mult.env,length=len), labels =  round(seq(-1,1,length=len),digit=2), 
+	     col = col.env,cex.axis=cex.axis)
+   	axis(4, at = seq(-mult.env,mult.env,length=len), labels =  round(seq(-1,1,length=len),digit=2), 
+   	     col = col.env,cex.axis=cex.axis)
 
 	if(!is.null(ell)) {
 		ell<-as.factor(ell)
@@ -258,9 +274,10 @@ graph.rdaTest <- function(rdaTest.out, xax=1, yax=2, scaling=1,
 			}
 		}
 	} else {}
-	# Close the drawn plot
-	if(saveplot==TRUE)
-		dev.off()
+	}
+	
+	# Close the PDF plot file
+	if(saveplot==TRUE) dev.off()
 }
 
 multi.factor<-function(plot.m, arrow.m,xax=1,yax=2,xinv=1,yinv=1,percentage=0.80){

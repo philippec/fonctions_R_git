@@ -13,14 +13,14 @@ spiders.rda = rdaTest(spiders.hell, spiders.env)
 
 # Triplot using matrix "Z" of fitted site scores
 
-graph.rdaTest(spiders.rda, plot.type="Z")
+graph.rdaTest(spiders.rda, graph.type="Z")
 
 # Triplot using matrix "F" of site scores; 
 # Represent the groups described by vector "groups" by 95% coverage ellipses
 
 groups = c(4,4,4,4,4,4,4,3,1,1,1,1,4,4,3,3,3,3,3,3,3,2,2,2,4,2,2,2)
 
-graph.rdaTest(spiders.rda, plot.type="F", ell=groups, ell.axis=TRUE)
+graph.rdaTest(spiders.rda, graph.type="F", ell=groups, ell.axis=TRUE)
 
 ========
 
@@ -29,17 +29,16 @@ graph.rdaTest(spiders.rda, plot.type="F", ell=groups, ell.axis=TRUE)
 # Legendre, P. & L. Legendre. 1998. Numerical ecology, 2nd English ed. Elsevier.
 
 Table11.3 = read.table(file.choose())      # File "Table_11-3.txt"
-Table11.3.mat = as.matrix(Table11.3)
 
-Y = Table11.3.mat[,1:6]
-X = Table11.3.mat[,7:10]
+Y = Table11.3[,1:6]
+X = Table11.3[,7:10]
 
 results = rdaTest(Y, X, testF=TRUE, nperm=999)
-graph.rdaTest(results,plot.type="F")
+graph.rdaTest(results, graph.type="F")
 
 # Change the label positions and adjust the margins of the graph
 
-graph.rdaTest(results,plot.type="F",lty.ell=3,pos.site=4,mai.perc=0.15)
+graph.rdaTest(results,graph.type="F",lty.ell=3,pos.sites=4,mar.perc=0.15)
 
 # Example of "silent" use of rdatest: no output is produced
 # Graph: reverse the signs of all abscissa and ordinate values; other changes
@@ -47,15 +46,15 @@ graph.rdaTest(results,plot.type="F",lty.ell=3,pos.site=4,mai.perc=0.15)
 results = rdaTest(Y,X,testF=TRUE,nperm=999,print.results=FALSE,print.cum=FALSE)
 
 graph.rdaTest(results,xax=-1,yax=-2, mul.spc=0.90, mul.env=0.70, mul.text=0.10, 
-scaling=1, plot.type="F", mai.perc=0.15)
+scaling=1, graph.type="F", mar.perc=0.15)
 
 # Represent by ellipses the groups described in vector "vec"
 
 vec = c(1,1,1,2,3,2,3,2,3,2)
 
-graph.rdaTest(results, xax=-1,yax=-2, plot.type="F", binary=c(2:4), ell=vec,
-lty.ell=2, mai.perc=0.15, col.ell="dark red", ell.axis=TRUE, pos.ell=1, 
-pos.bin=1, label.spc=TRUE, label.env=FALSE, label.site=FALSE)
+graph.rdaTest(results, xax=-1,yax=-2, graph.type="F", binary=c(2:4), ell=vec,
+lty.ell=2, mar.perc=0.15, col.ell="dark red", ell.axis=TRUE, pos.ell=1, 
+pos.bin=1, label.sites=FALSE, label.spc=TRUE, label.env=FALSE)
 
 # The ellipses are long because the uncertainty is high, 
 # due to the small number of objects 
