@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DEST="/Users/philippe/Site ftp/Site ftp.umontreal.ca/labo/fonctions_r"
+DEST="/Volumes/Louve/Users/philippe/Site ftp/Site ftp.umontreal.ca/labo/fonctions_r"
 
 find . -name ".DS_Store" -delete
 
@@ -13,6 +13,8 @@ zip -f -D "$DEST/corPerm.R.zip" "corPerm.R"
 zip -f -D "$DEST/multRegress.R.zip" "multRegress.R"
 zip -f -D "$DEST/nest.anova.perm.R.zip" "nest.anova.perm.R"
 zip -f -D "$DEST/Sidak.R.zip" "Sidak.R"
+zip -f -D "$DEST/t.perm.R.zip" "t.perm.R"
+zip -f -D "$DEST/t.paired.perm.R.zip" "t.paired.perm.R"
 
 zip -f -D -r "$DEST/CCorA.zip" "CCorA"
 
@@ -36,5 +38,5 @@ R CMD build --binary parafit
 R CMD build rdaTest
 R CMD build --binary rdaTest
 
-cp "STI_1.0_win.zip" "$DEST/"
-cp "STI_1.0_mac.tar.gz" "$DEST/"
+#cp "STI_1.0_win.zip" "$DEST/"
+#cp "STI_1.0_mac.tar.gz" "$DEST/"
