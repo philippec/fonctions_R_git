@@ -3,7 +3,6 @@
 \alias{probFrda}
 \alias{FractionBySpecies}
 \alias{vif}
-\alias{rdaTest}
 \alias{spiders.spe}
 \alias{spiders.env}
 \alias{Table.11.3}

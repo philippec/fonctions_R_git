@@ -1,8 +1,8 @@
 'plot.rdaTest' <- 
 	function(x, xax=1, yax=2, scaling=1, graph.type="notchosen",  
-	plot.sites=TRUE,plot.spe=TRUE, plot.env=TRUE, binary=NULL, height=6, 
+	plot.sites=TRUE, plot.spe=TRUE, plot.env=TRUE, binary=NULL, height=6, 
 	width=6, xlim=NULL, ylim=NULL, ell=NULL, alpha=0.95, ell.axis=FALSE,  
-	mul.spe=0.8, mul.env=0.90, mul.text=0.10,pos.ell=NULL, pos.bin=NULL,  
+	mul.spe=0.8, mul.env=0.90, mul.text=0.10, pos.ell=NULL, pos.bin=NULL,  
 	pos.sites=1, label.sites=TRUE, label.spe=TRUE,label.env=TRUE, 
 	label.ell=TRUE, col.env="blue", col.spe="red", col.site="black",
 	col.ell="black", lty.env=1, lty.spe=1, lty.ell=1, lty.axis=2, cex=1, 

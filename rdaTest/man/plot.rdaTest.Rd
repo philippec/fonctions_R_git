@@ -3,6 +3,7 @@
 \alias{plot.rdaTest}
 \alias{multi.factor}
 \alias{ellipse}
+\alias{larger.frame}
 \title{ Canonical redundancy analysis triplots }
 \description{
 Function \code{plot.rdaTest} produces triplots from the output list of \code{\link{rdaTest}}.

@@ -21,7 +21,6 @@
 # License: GPL-2 
 # Authors: Pierre Legendre, using ideas of C.J.F. ter Braak and J. Oksanen, 2010
 {
-	if(nperm > 5) verbose <- FALSE   # Modify this limit as needed #
 	if(length(seed)==0) seed <- ceiling(runif(1,max=10000))
 	cat("seed =",seed,'\n')
 
@@ -166,6 +165,7 @@
 			nper=toupper(scan(file="",what="integer",nlines=1,quiet=TRUE))
 			nperm=as.integer(nper)
 			}
+		if(nperm > 5) verbose <- FALSE   # Modify this limit as needed #
 		}
 	if(!silent) {
    		cat('\n','---','\n','\n',sep="")
