@@ -2,6 +2,8 @@
 
 DEST="/Users/philippe/Site ftp/Site ftp.umontreal.ca/labo/fonctions_r"
 
+find . -name ".DS_Store" -delete
+
 zip -f -D "$DEST/AdjustedRsquare.R.zip" "AdjustedRsquare.R"
 zip -f -D "$DEST/anova.1way.R.zip" "anova.1way.R"
 zip -f -D "$DEST/anova.2way.R.zip" "anova.2way.R"
@@ -16,6 +18,9 @@ zip -f -D "$DEST/Sidak.R.zip" "Sidak.R"
 zip -f -D -r "$DEST/CCorA.zip" "CCorA"
 zip -f -D -r "$DEST/rdaTest.zip" "rdaTest"
 
-cp "quickPCNM.R" "$DEST/quickPCNM-761.R"
-zip -f -D "$DEST/quickPCNM-761.R.zip" "$DEST/quickPCNM-761.R"
-rm "$DEST/quickPCNM-761.R"
+cp "quickPCNM.R" "$DEST/quickPCNM-770.R"
+zip -f -D "$DEST/quickPCNM-770.R.zip" "$DEST/quickPCNM-770.R"
+rm "$DEST/quickPCNM-770.R"
+
+zip -f -D -r "$DEST/CA.zip" "PCA-CA/CA"
+zip -f -D -r "$DEST/PCA.zip" "PCA-CA/PCA"
