@@ -1,13 +1,12 @@
 Package: rdaTest
 Type: Package
-Version: 1.6
-Date: 2010-12-21
+Version: 1.7
+Date: 2010-10-04
 Title: Canonical redundancy analysis
 Author:  Pierre Legendre and Sebastien Durand
 Maintainer: Pierre Legendre <pierre.legendre@umontreal.ca>
-Depends: MASS
 Description: Function \code{\link{rdaTest}} computes a simple or partial canonical redundancy analysis.
-License: copyleft
+License: GPL-2
 LazyLoad: yes
 Revision: 0
-Packaged: Sun February 21 2009; philippe
+Packaged: October 04 2010

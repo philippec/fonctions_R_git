@@ -12,34 +12,41 @@
 Function \code{rdaTest} computes a simple or partial canonical redundancy analysis (RDA), with permutation tests, following the algorithm described in Legendre and Legendre (1998, Chapter 11).
 }
 \usage{
-rdaTest(Y, X, W=NULL, scale.Y=FALSE, test.F=NULL, nperm=NULL, silent=FALSE)
+rdaTest(Y, X, W=NULL, scale.Y=FALSE, test.F=NULL, nperm=NULL, algorithm=1, 
+silent=FALSE, seed=NULL, verbose=FALSE)
 }
 
 \arguments{
-  \item{Y }{ An (nxp) response (e.g. site-by-species) data table. }
+  \item{Y }{ An (n x p) response (e.g. site-by-species) data table. }
 
-  \item{X }{ An (nxm) table of explanatory variables. The number of variables (m) is recomputed after eliminating collinear explanatory variables, if any. }
+  \item{X }{ An (n x m) table of explanatory variables. The number of variables (m) is recomputed after eliminating collinear explanatory variables, if any. X will be standardized by the function. }
 
-  \item{W }{ An optional (nxq) table of covariables. }
+  \item{W }{ An optional (n x q) table of covariables. If present, W will be standardized by the function. }
 
-  \item{scale.Y }{ A logical value (TRUE or FALSE) defining if Y should be standardized (TRUE), or only centred on its column means (FALSE).  }
+  \item{scale.Y }{ A logical value (TRUE or FALSE) defining if Y should be standardized (TRUE), or only centered on its column means (FALSE).  }
 
   \item{test.F }{ If NULL (default), the program will ask if the user wishes to test the F-statistic. If test.F is TRUE or FALSE, no question will be asked; the program will perform the test, or not, in accordance with that indication. }
 
-  \item{nperm}{ Number of permutations for the F-test. If \code{nperm = NULL} (default), a question will be asked by the program. If \code{nperm = 0}, permutation tests will not be computed. For large data files, the permutation test is slow since the permutation procedure is not compiled. } 
+  \item{nperm }{ Number of permutations for the F-test. If \code{nperm = NULL} (default), a question will be asked by the program. If \code{nperm = 0}, permutation tests will not be computed. For large data files, the permutation test is slower than with rda() of the \code{vegan} package where the permutation procedure is compiled. } 
 
-  \item{silent}{ If \code{silent = FALSE}, the basic rdaTest output is printed to the R window. See the paragraph Value. Choose \code{silent = TRUE} when the function is called by a numerical simulation function. }
+  \item{algorithm }{ if \code{algorithm = 1} (default value), partial RDA is RDA of Y with respect to X(res|W). If \code{algorithm = 2}, partial RDA is RDA of Y(res|W) with respect to X(res|W). The results of these two algorithms are identical. }
+
+  \item{silent }{ If \code{silent = FALSE}, the basic rdaTest output is printed to the R window. See the paragraph Value. Choose \code{silent = TRUE} when the function is called by a numerical simulation function. }
+
+  \item{seed }{ This option allows users to set the seed for the random number generator for the test of significance of the F-statistic. The seed is used by the permutation function \code{\link{sample}}. If \code{seed=NULL} (default), a random integer is drawn as the seed for the run. It will be reset to that value before the test of each canonical axis. All axes are thus tested using the same set of permutations. A fixed value, e.g. seed=12345, can be givenn by the user to compare the results of this function with that of other functions where the seed can also be set at run time. }
+  
+  \item{verbose }{ If \code{verbose = TRUE}, intermediate F and F.perm results are printed during testing. By default, \code{verbose = FALSE}. }
 }
 
 \details{
 
-Function \code{rdaTest} computes [partial] canonical redundancy analysis (RDA) of a data table and produces scaling 1 and scaling 2 biplots. The response variables must be standardized (scale.Y=TRUE) if they are not all expressed in the same physical dimensions. The default is \code{scale.Y = FALSE}.
+Function \code{rdaTest} computes [partial] canonical redundancy analysis (RDA) of a data table and produces the result tables required for scaling 1 and scaling 2 biplots, which can be produced by \code{\link{plot.rdaTest}}. The response variables must be standardized (scale.Y=TRUE) if they are not all expressed in the same physical dimensions. The default is \code{scale.Y = FALSE}.
 
 Scaling type 1 biplot uses matrices Z or F for objects and U for variables; notation as in Legendre and Legendre (1998, Section 9.1). This projection preserves the Euclidean distances among the objects.
 
 Scaling type 2 biplot uses matrices ZSc2 or FSc2 for objects and USc2 for variables. This projection preserves the correlations among the variables.
 
-This function runs correctly with a single response variable in Y or a single explanatory variable in X. Since there is a single canonical axis in both of these cases, the first PCA axis of the residuals is added to the tables in the output list to allow the drawing of biplots.
+This function will run correctly with a single response variable in Y or a single explanatory variable in X. Since there is a single canonical axis in both of these cases, the first PCA axis of the residuals is added to the tables in the output list to allow the drawing of biplots.
 
 The function prints the following information to the R window unless \code{silent = TRUE}:
 	\enumerate{
@@ -63,20 +70,20 @@ The function prints the following information to the R window unless \code{silen
 The function returns a list containing the following results and matrices:
 
 \item{VIF }{ Variance inflation factors for the explanatory variables X; the value is 0 for entirely collinear variables. The covariables are not included in this calculation. }
-  \item{canEigval }{ Canonical eigenvalues. }
-  \item{U }{ Canonical eigenvectors normalized to 1 (scaling 1). }
-  \item{USc2 }{ Canonical eigenvectors normalized to sqrt(eigenvalue) (scaling 2). }
-  \item{F.mat }{ Matrix of object scores (scaling 1). }
-  \item{Z.mat }{ Matrix of fitted object scores (scaling 1). }
-  \item{FSc2 }{ Matrix of object scores (scaling 2). }
-  \item{ZSc2 }{ Matrix of fitted object scores (scaling 2). }
+  \item{eig.values }{ Canonical eigenvalues. }
+  \item{U.sc1 }{ Canonical eigenvectors normalized to 1 (scaling 1). }
+  \item{U.sc2 }{ Canonical eigenvectors normalized to sqrt(eigenvalue) (scaling 2). }
+  \item{Z.sc1 }{ Matrix of fitted object scores (scaling 1). }
+  \item{Z.sc2 }{ Matrix of fitted object scores (scaling 2). }
+  \item{F.sc1 }{ Matrix of object scores (scaling 1). }
+  \item{F.sc2 }{ Matrix of object scores (scaling 2). }
   \item{biplotScores1 }{ Biplot scores of explanatory variables (scaling 1). }
   \item{biplotScores2 }{ Biplot scores of explanatory variables (scaling 2). }
   \item{FitSpe }{ Table of cumulative fit per species (in percent) as fraction of variance of species. }
   \item{VarExpl }{ Vector of total percent fit per species after all canonical axes. }
   \item{ProbFrda }{ Probability associated with F test of the canonical relationship. }
   \item{X.mat }{ Original X matrix (required by the plotting function). }
-  \item{Rsq }{ Canonical R-square. }
+  \item{Rsquare }{ Canonical R-square. }
   }
 
 \author{ Pierre Legendre, Universite de Montreal }
@@ -87,7 +94,7 @@ Aart, P. J. M. (van der) and N. Smeenk-Enserink. 1975. Correlations between dist
 Legendre, P. and Legendre, L. 1998. Numerical Ecology. 2nd English ed. Elsevier, Amsterdam. 
 }
 
-\seealso{ \code{\link{plot.rdaTest}} }
+\seealso{ \code{\link{plot.rdaTest}} and \code{\link{test.axes}} }
 
 \examples{
 ## Analysis of Table 11.3 of Legendre and Legendre (1998, p. 590)  
@@ -122,6 +129,16 @@ plot(result.spiders, graph.type="Z", plot.spe=FALSE, ell=vec, lty.ell=3,
 pos.sites=4, mar.perc=0.15)
 
 ## See graphical options for triplots in \code{\link{plot.rdaTest}}.
+
+## Test significance of individual canonical axes. See \code{\link{test.axes}}
+out = test.axes(Y, X, nperm=999)
+out$test.axes
+
+out = test.axes(spiders.hel, spiders.env, nperm=499)
+out$test.axes
+
+out = test.axes(spiders.hel, spiders.env[,-1], spiders.env[,1], nperm=499)
+out$test.axes
 }
 
 \keyword{ multivariate }
