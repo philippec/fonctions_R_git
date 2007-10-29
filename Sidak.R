@@ -18,17 +18,15 @@ Sidak <- function(vecP)
 {
 k = length(vecP)
 
-bonf = vecP[1]*k
-if(bonf > 1) bonf=1
-vecPB = bonf
-vecPS = 1-(1-vecP[1])^k
+vecPB = 0
+vecPS = 0
 
-for(i in 2:k) {
+for(i in 1:k) {
    bonf = vecP[i]*k
    if(bonf > 1) bonf=1
    vecPB = c(vecPB, bonf)
    vecPS = c(vecPS, (1-(1-vecP[i])^k))
    }
 #
-return(list(OriginalP=vecP, BonfP=vecPB, SidakP=vecPS))
+return(list(OriginalP=vecP, BonfP=vecPB[-1], SidakP=vecPS[-1]))
 }
