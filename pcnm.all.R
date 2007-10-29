@@ -5,7 +5,7 @@ pcnm.all <- function(matdist,thresh=give.thresh(matdist))
 # Computation of the threshold will require a function of the library "ape".
 # 
 # Original PCNM function: Stephane Dray, November 11, 2004
-# The present version: Pierre Legendre, August 20, 2007
+# The present version: Pierre Legendre, August 19, 2007
 {
     a <- system.time({
 	cat("Truncation level =",thresh,'\n')
