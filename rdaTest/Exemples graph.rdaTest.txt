@@ -1,1 +1,66 @@
-# Exemples de rdaTest et graph.rdaTest========# Exemple de rdaTest et graph.rdaTest utilisant les fichiers de données des araignéesspiders.sp = read.table(file.choose())     # Fichier "Spiders_28x12_spe.txt"spiders.hell=decostand(spiders.sp,"hell")spiders.env = read.table(file.choose())    # Fichier "Spiders_28x4_env.txt"spiders.rda = rdaTest(spiders.hell, spiders.env)# Triple projection. Position des sites: valeurs ajustées au modèle, matrice "Z"graph.rdaTest(spiders.rda, plot.type="Z")# Triple projection. Position des sites: matrice "F"# Représenter les groupes décrits dans le vecteur "groups" par des ellipses de recouvrement à 95%groups = c(4,4,4,4,4,4,4,3,1,1,1,1,4,4,3,3,3,3,3,3,3,2,2,2,4,2,2,2)graph.rdaTest(spiders.rda, plot.type="F", ell=groups, ell.axis=TRUE)========# Exemple de rdaTest et graph.rdaTest utilisant le fichier "Table_11-3.txt"# Les données proviennent du tableau 11.3 de:# Legendre, P. & L. Legendre. 1998. Numerical ecology, 2nd English ed. Elsevier.Table11.3 = read.table(file.choose())      # Fichier "Table_11-3.txt"Table11.3.mat = as.matrix(Table11.3)Y = Table11.3.mat[,1:6]X = Table11.3.mat[,7:10]resultats = rdaTest(Y, X, testF=TRUE, nperm=999)graph.rdaTest(resultats,plot.type="F")# Changer la position des étiquettes et ajuster les marges du graphique graph.rdaTest(resultats,plot.type="F",lty.ell=3,pos.site=4,mai.perc=0.15)# Exemple d'utilisation "silencieuse" de rdaTest; rien ne sera écrit en sortie# Graphique: inversion du signe des valeurs de l'abscisse et de l'ordonnée, etc.resultats = rdaTest(Y,X,testF=TRUE,nperm=999,print.results=FALSE,print.cum=FALSE)graph.rdaTest(resultats,xax=-1,yax=-2, mul.spc=0.90, mul.env=0.70, mul.text=0.10, scaling=1, plot.type="F", mai.perc=0.15)# Représenter par des ellipses les groupes décrits dans le vecteur "vec"vec = c(1,1,1,2,3,2,3,2,3,2)graph.rdaTest(resultats, xax=-1,yax=-2, plot.type="F", binary=c(2:4), ell=vec,lty.ell=2, mai.perc=0.15, col.ell="dark red", ell.axis=TRUE, pos.ell=1, pos.bin=1, label.spc=TRUE, label.env=FALSE, label.site=FALSE)# Les ellipses dessinées sont longues parce que l'incertitude # est grande à cause du faible nombre d'objets # Étudiez les paramètres utilisés. Voir le document "graph.rdaTest.help.pdf".========
+# Exemples de rdaTest et graph.rdaTest
+
+========
+
+# Exemple de rdaTest et graph.rdaTest utilisant les fichiers de données des araignées
+
+spiders.sp = read.table(file.choose())     # Fichier "Spiders_28x12_spe.txt"
+spiders.hell=decostand(spiders.sp,"hell")
+
+spiders.env = read.table(file.choose())    # Fichier "Spiders_28x4_env.txt"
+
+spiders.rda = rdaTest(spiders.hell, spiders.env)
+
+# Triple projection. Position des sites: valeurs ajustées au modèle, matrice "Z"
+
+graph.rdaTest(spiders.rda, plot.type="Z")
+
+# Triple projection. Position des sites: matrice "F"
+# Représenter les groupes décrits dans le vecteur "groups" par des ellipses de recouvrement à 95%
+
+groups = c(4,4,4,4,4,4,4,3,1,1,1,1,4,4,3,3,3,3,3,3,3,2,2,2,4,2,2,2)
+
+graph.rdaTest(spiders.rda, plot.type="F", ell=groups, ell.axis=TRUE)
+
+========
+
+# Exemple de rdaTest et graph.rdaTest utilisant le fichier "Table_11-3.txt"
+# Les données proviennent du tableau 11.3 de:
+# Legendre, P. & L. Legendre. 1998. Numerical ecology, 2nd English ed. Elsevier.
+
+Table11.3 = read.table(file.choose())      # Fichier "Table_11-3.txt"
+Table11.3.mat = as.matrix(Table11.3)
+
+Y = Table11.3.mat[,1:6]
+X = Table11.3.mat[,7:10]
+
+resultats = rdaTest(Y, X, testF=TRUE, nperm=999)
+graph.rdaTest(resultats,plot.type="F")
+
+# Changer la position des étiquettes et ajuster les marges du graphique 
+
+graph.rdaTest(resultats,plot.type="F",lty.ell=3,pos.site=4,mai.perc=0.15)
+
+# Exemple d'utilisation "silencieuse" de rdaTest; rien ne sera écrit en sortie
+# Graphique: inversion du signe des valeurs de l'abscisse et de l'ordonnée, etc.
+
+resultats = rdaTest(Y,X,testF=TRUE,nperm=999,print.results=FALSE,print.cum=FALSE)
+
+graph.rdaTest(resultats,xax=-1,yax=-2, mul.spc=0.90, mul.env=0.70, mul.text=0.10, 
+scaling=1, plot.type="F", mai.perc=0.15)
+
+# Représenter par des ellipses les groupes décrits dans le vecteur "vec"
+
+vec = c(1,1,1,2,3,2,3,2,3,2)
+
+graph.rdaTest(resultats, xax=-1,yax=-2, plot.type="F", binary=c(2:4), ell=vec,
+lty.ell=2, mai.perc=0.15, col.ell="dark red", ell.axis=TRUE, pos.ell=1, 
+pos.bin=1, label.spc=TRUE, label.env=FALSE, label.site=FALSE)
+
+# Les ellipses dessinées sont longues parce que l'incertitude 
+# est grande à cause du faible nombre d'objets 
+
+# Étudiez les paramètres utilisés. Voir le document "graph.rdaTest.help.pdf".
+
+========
+
