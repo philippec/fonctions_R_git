@@ -1,4 +1,4 @@
-multRegress = function(yy, XX, nperm=999) 
+multRegress = function(yy, XX, nperm=10) 
 #
 # This function computes a multiple regression and tests
 # the coefficient of determination (R-square) by permutation.
