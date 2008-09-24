@@ -330,7 +330,7 @@ rdaTest <- function(YY.mat, XX.mat, WW.mat=NULL,
 	} else {}
 	
 	# Compute the "Cumulative fit per species as fraction of variance of species" table
-	Frac=FractionBySpecies(Y.mat,UL,n,p,k,print.cum=print.cum)
+	Frac=FractionBySpecies(Y,UL,n,p,k,print.cum=print.cum)
 
 	# Create the output list containing the following elements:
 	#

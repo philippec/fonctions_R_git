@@ -163,13 +163,25 @@ graph.rdaTest <- function(rdaTest.out, xax=1, yax=2, scaling=1,
 	} else {}
 	
 	if(!is.null(binary)) {
-		binvar<-matrix(NA,length(binary),ncol(rdaTest.out$Z))
+		binvar <- matrix(NA,length(binary),ncol(rdaTest.out$Z))
 		j=1
 		for(i in binary) {
-			tmp<-which(rdaTest.out$X.mat[,i]!=0)
-			binvar[j,]<-apply(rdaTest.out$Z[tmp,]*rdaTest.out$X.mat[tmp,i],2,mean)
+			tmp <- which(rdaTest.out$X.mat[,i]!=0)
+			if(length(tmp) == 1) { 
+			   binvar[j,] <- rdaTest.out$Z[tmp,] 
+			   } else { 
+			   binvar[j,] <- apply(rdaTest.out$Z[tmp,]*rdaTest.out$X.mat[tmp,i],2,mean)
+			   }
 			j=j+1
 		}
+#	if(!is.null(binary)) {
+#		binvar<-matrix(NA,length(binary),ncol(rdaTest.out$Z))
+#		j=1
+#		for(i in binary) {
+#			tmp<-which(rdaTest.out$X.mat[,i]!=0)
+#			binvar[j,]<-apply(rdaTest.out$Z[tmp,]*rdaTest.out$X.mat[tmp,i],2,mean)
+#			j=j+1
+#		}
 		colnames(binvar)<-colnames(rdaTest.out$Z)
 		rownames(binvar)<-colnames(rdaTest.out$X.mat)[binary]
 		# rownames(binvar)<-c("Ra","Ri","Rs","Lv","Ln","Ll","Ls","Lf","Sc","Iba","Vl",
