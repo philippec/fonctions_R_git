@@ -18,6 +18,9 @@ zip -f -D "$DEST/Sidak.R.zip" "Sidak.R"
 zip -f -D -r "$DEST/CCorA.zip" "CCorA"
 zip -f -D -r "$DEST/rdaTest.zip" "rdaTest"
 
+cp "kendall.W_2.2.tar.gz" "$DEST/kendall.W_2.2.tar.gz"
+cp "kendall.W_2.2.zip" "$DEST/kendall.W_2.2.zip"
+
 cp "quickPCNM.R" "$DEST/quickPCNM-770.R"
 zip -f -D "$DEST/quickPCNM-770.R.zip" "$DEST/quickPCNM-770.R"
 #zip -j "$DEST/quickPCNM-770.R.zip" "$DEST/quickPCNM-770.R"

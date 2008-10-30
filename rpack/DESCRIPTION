@@ -3,8 +3,7 @@ Type: Package
 Title: Multivariate and Spatial Analysis
 Version: 0.1
 Date: 2007-11-24
-Authors: Philippe Casgrain & Pierre Legendre
+Author: Philippe Casgrain & Pierre Legendre
 Maintainer: Philippe Casgrain <casgrain@exchange.umontreal.ca>
-Description: This is a port to the "R" environment of the "R Package for Multivariate and Spatial Analysis", which is a collection of statistical computing modules. 
-The R Package and the "R" environment share a similar name, but are very different computer programs. For more information, type "rpack.info()" at the R command prompt.
+Description: This is a port to the "R" environment of the "R Package for Multivariate and Spatial Analysis", which is a collection of statistical computing modules. \n The "R" Package and the R environment share a similar name, but are very different computer programs. For more information, type "rpack.info()" at the R command prompt.
 License: BSD

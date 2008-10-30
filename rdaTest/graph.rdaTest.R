@@ -8,7 +8,7 @@ graph.rdaTest <- function(rdaTest.out, xax=1, yax=2, scaling=1,
                	col.env="blue", col.spc="red", col.site="black",col.ell="black", 
                	lty.env=1, lty.spc=1, lty.ell=1, lty.axis=2, 
                 cex=1, cex.lab=1, cex.axis=1, lwd=1, len=0.1, 
-                saveplot=FALSE, path=NULL, mar.perc=NULL)
+                saveplot=FALSE, path=NULL, mar.perc=NULL, select.spc=NULL)
 # Version 1.2
 
 # Function to produce triplots from the output list of function 'rdaTest'
@@ -69,6 +69,8 @@ graph.rdaTest <- function(rdaTest.out, xax=1, yax=2, scaling=1,
 # mar.perc:  allows to increase or decrease the margin size, using a percentage of the 
 #	   total width and height of the graph; use a value between 0 and 1
 # label...:  using logicals, define whether the labels will be plotted
+# select.spc: vector containing a list of numbers for the species to be drawn in
+#             the biplot. select.spc-NULL: draw all species.
 
 # Use of the function in conjunction with 'rdaTest':
 #
@@ -235,11 +237,12 @@ graph.rdaTest <- function(rdaTest.out, xax=1, yax=2, scaling=1,
 
 	# Draw species (or other response variable) arrows
 	if(plot.spc) {
-	arrows(x0=0,y0=0, x1=xinv*rdaTest.out$U[,xax]*mult.spc, y1=yinv*rdaTest.out$U[,yax]*mult.spc, 
-		col=col.spc,code=2, lty=lty.spc, len=len,lwd=1)
+	if(is.null(select.spc)) { vec<-1:nrow(rdaTest.out$U) } else { vec <- select.spc }
+	arrows(x0=0, y0=0, x1=xinv*rdaTest.out$U[vec,xax]*mult.spc, y1=yinv*rdaTest.out$U[vec,yax]*mult.spc, 
+		col=col.spc, code=2, lty=lty.spc, len=len, lwd=1)
 	if(label.spc==TRUE)
-		text(x=mul.text*mult.spc*xinv*rdaTest.out$U[,xax],y=mul.text*mult.spc*yinv*rdaTest.out$U[,yax], 
-				rownames(rdaTest.out$U), col = col.spc, cex = cex)
+		text(x=mul.text*mult.spc*xinv*rdaTest.out$U[vec,xax],y=mul.text*mult.spc*yinv*rdaTest.out$U[vec,yax], 
+				rownames(rdaTest.out$U[vec,]), col = col.spc, cex = cex)
 	}
 
     if(plot.env) {
