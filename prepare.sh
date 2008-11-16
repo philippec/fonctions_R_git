@@ -30,3 +30,4 @@ zip -f "$DEST/PCA.zip" *
 cd "../../"
 #zip -f -j "$DEST/PCA.zip" "PCA-CA/PCA/*"
 
+R CMD build --binary kendall.W
