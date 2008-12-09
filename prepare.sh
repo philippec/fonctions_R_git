@@ -18,10 +18,10 @@ zip -f -D "$DEST/Sidak.R.zip" "Sidak.R"
 zip -f -D -r "$DEST/CCorA.zip" "CCorA"
 zip -f -D -r "$DEST/rdaTest.zip" "rdaTest"
 
-cp "quickPCNM.R" "$DEST/quickPCNM-763.R"
-zip -f -D "$DEST/quickPCNM-763.R.zip" "$DEST/quickPCNM-763.R"
-#zip -j "$DEST/quickPCNM-763.R.zip" "$DEST/quickPCNM-763.R"
-rm "$DEST/quickPCNM-763.R"
+cp "quickPCNM.R" "$DEST/quickPCNM-771.R"
+zip -D "$DEST/quickPCNM-771.R.zip" "$DEST/quickPCNM-771.R"
+#zip -j "$DEST/quickPCNM-771.R.zip" "$DEST/quickPCNM-771.R"
+rm "$DEST/quickPCNM-771.R"
 
 cd "PCA-CA/CA"
 zip -f "$DEST/CA.zip" *

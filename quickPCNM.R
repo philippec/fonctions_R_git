@@ -1,7 +1,7 @@
 quickPCNM <- function(Y,space,truncd=0,method="fwd",PCNM=NULL,alpha=0.05,rangexy=FALSE,detrend=TRUE){
 
 #              *** Quick exploratory PCNM analysis ***
-#                  Version 7.6.3 (27 november 2008)
+#                  Version 7.7.1 (27 november 2008)
 #
 #   PCNM analysis for quick assessment of spatial structures, either on
 #   the basis of geographical coordinates (which can be one- or two-
@@ -88,7 +88,7 @@ quickPCNM <- function(Y,space,truncd=0,method="fwd",PCNM=NULL,alpha=0.05,rangexy
 #       B. Case with AIC selection:
 #          name_of_object <- quickPCNM(Y,space,method="AIC")
 #       C. Same as A but with a modified alpha level and rescaling of coordinates:
-#          name_of_object <- quickPCNM(Y,space,alpha=0.01,range=TRUE)
+#          name_of_object <- quickPCNM(Y,space,alpha=0.01,rangexy=TRUE)
 #       D. Case with precomputed PCNM variables, Holm selection and a modified 
 #          alpha level:
 #          name_of_object <- quickPCNM(Y,space,method="holm",PCNM=PCNM,alpha=0.01)
