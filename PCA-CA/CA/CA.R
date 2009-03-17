@@ -87,7 +87,7 @@ out
 }
 
 `biplot.CA` <-
-    function(x, scaling=12, aspect=1, ...)
+    function(x, scaling=12, aspect=1, cex=2, ...)
 # Use aspect=NA to remove the effect of parameter 'asp' in the graphs
 {
 if(length(x$eigenvalues) < 2) stop("There is a single eigenvalue. No plot can be produced.")
@@ -113,10 +113,10 @@ xmax = max(V.range[2,1], F.range[2,1]) + ran.x/3
 ymin = min(V.range[1,2], F.range[1,2])
 ymax = max(V.range[2,2], F.range[2,2])
 #
-plot(x$F[,1:2], asp=aspect, pch=20, cex=2, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab="CA axis 1", ylab="CA axis 2", col=x$color.sites)
-text(x$F[,1:2], labels=x$site.names, pos=4, offset=0.5, col=x$color.sites)
-points(x$V[,1:2], pch=22, cex=2, col=x$color.sp)
-text(x$V[,1:2], labels=x$sp.names, pos=4, offset=0.5, col=x$color.sp)
+plot(x$F[,1:2], asp=aspect, pch=20, cex=cex, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab="CA axis 1", ylab="CA axis 2", col=x$color.sites)
+text(x$F[,1:2], labels=x$site.names, cex=cex, pos=4, offset=0.5, col=x$color.sites)
+points(x$V[,1:2], pch=22, cex=cex, col=x$color.sp)
+text(x$V[,1:2], labels=x$sp.names, cex=cex, pos=4, offset=0.5, col=x$color.sp)
 title(main = c("CA biplot","scaling type 1"), family="serif")
 #
 # Biplot, scaling type = 2: plot Vhat for sites, Fhat for species
@@ -130,10 +130,10 @@ xmax = max(Vhat.range[2,1], Fhat.range[2,1]) + ran.x/3
 ymin = min(Vhat.range[1,2], Fhat.range[1,2])
 ymax = max(Vhat.range[2,2], Fhat.range[2,2])
 #
-plot(x$Vhat[,1:2], asp=aspect, pch=20, cex=2, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab="CA axis 1", ylab="CA axis 2", col=x$color.sites)
-text(x$Vhat[,1:2], labels=x$site.names, pos=4, offset=0.5, col=x$color.sites)
-points(x$Fhat[,1:2], pch=22, cex=2, col=x$color.sp)
-text(x$Fhat[,1:2], labels=x$sp.names, pos=4, offset=0.5, col=x$color.sp)
+plot(x$Vhat[,1:2], asp=aspect, pch=20, cex=cex, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab="CA axis 1", ylab="CA axis 2", col=x$color.sites)
+text(x$Vhat[,1:2], labels=x$site.names, cex=cex, pos=4, offset=0.5, col=x$color.sites)
+points(x$Fhat[,1:2], pch=22, cex=cex, col=x$color.sp)
+text(x$Fhat[,1:2], labels=x$sp.names, cex=cex, pos=4, offset=0.5, col=x$color.sp)
 title(main = c("CA biplot","scaling type 2"), family="serif")
 
 } else {
@@ -148,10 +148,10 @@ xmax = max(Fhat.range[2,1], F.range[2,1]) + ran.x/3
 ymin = min(Fhat.range[1,2], F.range[1,2])
 ymax = max(Fhat.range[2,2], F.range[2,2])
 #
-plot(x$F[,1:2], asp=aspect, pch=20, cex=2, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab="CA axis 1", ylab="CA axis 2", col=x$color.sites)
-text(x$F[,1:2], labels=x$site.names, pos=4, offset=0.5, col=x$color.sites)
-points(x$Fhat[,1:2], pch=22, cex=2, col=x$color.sp)
-text(x$Fhat[,1:2], labels=x$sp.names, pos=4, offset=0.5, col=x$color.sp)
+plot(x$F[,1:2], asp=aspect, pch=20, cex=cex, xlim=c(xmin,xmax), ylim=c(ymin,ymax), xlab="CA axis 1", ylab="CA axis 2", col=x$color.sites)
+text(x$F[,1:2], labels=x$site.names, cex=cex, pos=4, offset=0.5, col=x$color.sites)
+points(x$Fhat[,1:2], pch=22, cex=cex, col=x$color.sp)
+text(x$Fhat[,1:2], labels=x$sp.names, cex=cex, pos=4, offset=0.5, col=x$color.sp)
 title(main = c("CA biplot","scaling type 3"), family="serif")
 }
 #
