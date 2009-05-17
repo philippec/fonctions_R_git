@@ -12,16 +12,10 @@ zip -f -D "$DEST/broken.stick.R.zip" "broken.stick.R"
 zip -f -D "$DEST/corPerm.R.zip" "corPerm.R"
 zip -f -D "$DEST/multRegress.R.zip" "multRegress.R"
 zip -f -D "$DEST/nest.anova.perm.R.zip" "nest.anova.perm.R"
-#zip -f -D "$DEST/pcnm.all.R.zip" "pcnm.all.R"
 zip -f -D "$DEST/Sidak.R.zip" "Sidak.R"
 
 zip -f -D -r "$DEST/CCorA.zip" "CCorA"
 zip -f -D -r "$DEST/rdaTest.zip" "rdaTest"
-
-cp "quickPCNM.R" "$DEST/quickPCNM-771.R"
-#zip -D "$DEST/quickPCNM-771.R.zip" "$DEST/quickPCNM-771.R"
-#zip -j "$DEST/quickPCNM-771.R.zip" "$DEST/quickPCNM-771.R"
-rm "$DEST/quickPCNM-771.R"
 
 cd "PCA-CA/CA"
 zip -f "$DEST/CA.zip" *
@@ -31,6 +25,5 @@ cd "../../"
 #zip -f -j "$DEST/PCA.zip" "PCA-CA/PCA/*"
 
 R CMD build --binary kendall.W
-
-cp "PCNM_1.5.zip" "$DEST/"
-cp "PCNM_1.5.tar.gz" "$DEST/"
+cp "STI_1.0_win.zip" "$DEST/"
+cp "STI_1.0_mac.tar.gz" "$DEST/"
