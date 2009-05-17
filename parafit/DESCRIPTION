@@ -1,0 +1,12 @@
+Package: parafit
+Type: Package
+Version: 1.1
+Date: 2009-05-14
+Title: Multiple regression through the origin
+Author:  Pierre Legendre
+Maintainer: Pierre Legendre <pierre.legendre@umontreal.ca>
+Description: Function \code{\link{parafit}} tests the hypothesis of coevolution between a clade of hosts and a clade of parasites.
+License: copyleft
+LazyLoad: yes
+Revision: 0
+Packaged: May 14 2009

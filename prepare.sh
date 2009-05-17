@@ -26,6 +26,7 @@ cd "../../"
 
 R CMD build --binary kendall.W
 R CMD build --binary lmorigin
+R CMD build parafit
 
 cp "STI_1.0_win.zip" "$DEST/"
 cp "STI_1.0_mac.tar.gz" "$DEST/"
