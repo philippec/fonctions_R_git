@@ -1,0 +1,12 @@
+Package: lmorigin
+Type: Package
+Version: 1.0
+Date: 2009-04-22
+Title: Multiple regression through the origin
+Author:  Pierre Legendre
+Maintainer: Pierre Legendre <pierre.legendre@umontreal.ca>
+Description: Function \code{\link{lmorigin}} computes a multiple linear regression and performs tests of significance of the equation parameters using permutations. The regression line can be forced through the origin. Testing the significance in that case requires a special permutation procedure. This option was developed for the analysis of independent contrasts, which requires regression through the origin.
+License: copyleft
+LazyLoad: yes
+Revision: 0
+Packaged: Apr 22 2009
