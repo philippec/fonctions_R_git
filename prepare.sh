@@ -25,8 +25,10 @@ cd "../../"
 #zip -f -j "$DEST/PCA.zip" "PCA-CA/PCA/*"
 
 R CMD build --binary kendall.W
+R CMD build lmorigin
 R CMD build --binary lmorigin
 R CMD build parafit
+R CMD build --binary parafit
 
 cp "STI_1.0_win.zip" "$DEST/"
 cp "STI_1.0_mac.tar.gz" "$DEST/"
