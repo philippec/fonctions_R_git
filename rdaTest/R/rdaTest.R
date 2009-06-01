@@ -1,82 +1,11 @@
-rdaTest <- function(YY.mat, XX.mat, WW.mat=NULL, 
-           scale.Y=FALSE, testF=NULL, nperm=NULL, print.results=TRUE, print.cum=FALSE)
-#
-# Function RDA for simple or partial RDA, with permutation tests,
-# computed as described in Numerical Ecology, Chapter 11 (Legendre & Legendre 1998)
-#
-# Pierre Legendre, UniversitŽ de MontrŽal, March-April 2005, May-August 2007
-#
-# Modified June and August 2006: This version runs correctly with a single   
-# explanatory variable in XX and a single response variable in YY.
-# Since there is a single canonical axis in either case, the first PCA axis of
-# the residuals is added to the tables to allow the drawing of biplots.
-#
-#
-# PARAMETERS:
-#
-# YY.mat (nxp) is the site-by-species data table
-# XX.mat (nxm) contains the explanatory variables. The number of variables
-#    'm' is computed after eliminating collinear explanatory variables, if any
-# WW.mat (nxm) contains the covariables, if any
-#
-# scale.Y contains a logical value: should YY.mat be standardized, or not
-# testF: when NULL, the program will ask the user if he/she wishes to test the  
-#    F statistic. If testF is TRUE or FALSE, no question will be asked; 
-#    the program will perform the test, or not, in accordance with that indication.
-# nperm: number of permutation for the F test. If NULL, a question will be asked.
-# print.results: prints the main rdaTest results on the screen.
-# print.cum: prints the fractions of the response variable's (e.g. species) variances
-#    explained by canonical axes 1, 2, 3, ... and by the whole canonical analysis.
-#
-#
-# The function first returns a list of XX.mat variables with null variances, if any.
-# The function then returns an output list containing the following ELEMENTS:
-#
-# return(list(VIF=vif.res, canEigval=canEigval, U=U, USc2=UL, F=F, Z=Z, FSc2=FSc2, 
-#        ZSc2=ZSc2, biplotScores1=posX, biplotScores2=posXSc2, FitSpe=Frac$rdaFitSpe, 
-#        VarExpl=Frac$VarExpl, X.mat=X.mat))
-#
-# VIF: variance inflation factors for the explanatory variables X; 
-#    the value is 0 for entirely collinear variables
-# canEigval: canonical eigenvalues
-# U (pxk): canonical eigenvectors normalized to 1 (scaling 1)
-# USc2 (pxk): canonical eigenvectors normalized to sqrt(eigenvalue) (scaling 2)
-# F (nxk): matrix of object scores (scaling 1)
-# Z (nxk): matrix of fitted object scores (scaling 1)
-# FSc2: matrix of object scores (scaling 2)
-# ZSc2: matrix of fitted object scores (scaling 2)
-# biplotScores1: biplot scores of explanatory variables (scaling 1)
-# biplotScores2: biplot scores of explanatory variables (scaling 2)
-# FitSpe: table of cumulative fit per species (in %) as fraction of variance of species
-# VarExpl: vector of total % fit per species after all canonical axes 
-# X.mat: original X matrix (required by the plotting function)
-#
-#
-# Use of the function 'rdaTest':
-#
-# First set of examples: use all default values, except the data file names
-# result <- rdaTest(Y, X)         # example of simple RDA
-# result <- rdaTest(Y, X, W)      # example of partial RDA
-#
-# Second set of examples: ask for the permutation test in the function parameters
-# result <- rdaTest(Y, X, testF=TRUE, nperm=999)
-# result <- rdaTest(Y, X, W, testF=TRUE, nperm=999)
-#
-# How to obtain the non-canonical axes:
-# result.noncan <- rdaTest(Y, Y, X)           # Example with explanatory variables X
-# result.noncan <- rdaTest(Y, Y, cbind(X,W))  # Example with X and covariables W
-#
-# 345678901234567890123456789012345678901234567890123456789012345678901234567890
+'rdaTest' <- 
+	function(Y, X, W=NULL, scale.Y=FALSE, test.F=NULL, nperm=NULL, silent=FALSE)
 {
-	library(MASS)
-	if(is.logical(scale.Y)){
-	}else{
-		stop("Wrong operator; 'center.Y' should be either 'FALSE' or 'TRUE'")	
-	}
+	if(!is.logical(scale.Y)) stop("Wrong operator; 'center.Y' should be either 'FALSE' or 'TRUE'")	
 		
 	# Read the data tables. Transform them into matrices Y, X, and W
-	Y.mat=as.matrix(YY.mat)
-	X.mat=as.matrix(XX.mat)
+	Y.mat=as.matrix(Y)
+	X.mat=as.matrix(X)
 	sitenames<-rownames(X.mat)
 	if(is.null(rownames(X.mat)) & is.null(rownames(Y.mat))){
 		sitenames<-paste("Site",1:nrow(X.mat),sep="")
@@ -123,12 +52,12 @@ rdaTest <- function(YY.mat, XX.mat, WW.mat=NULL,
 	m1 = ncol(X)
 	X.cor = X
 	if(m1 > 1) {
-		vif.res=vif(X,print.vif=print.results)
+		vif.res=vif(X,print.vif=!silent)
 		if(length(which(vif.res==0))!=0) X.cor = X[,-which(vif.res==0)]
 		} else { vif.res=rep(1,m1) }
 	m=ncol(X.cor)
 	
-	if(print.results==TRUE & m > 1){ 
+	if((!silent) & m > 1){ 
 		cat('\n')
 		cat('Variance Inflation Factors (VIF)','\n')
 		print(vif.res)
@@ -137,12 +66,12 @@ rdaTest <- function(YY.mat, XX.mat, WW.mat=NULL,
 	qq=0
 	mq=m
 	# Is there a matrix W containing covariables?
-	if(length(WW.mat)!=0){
+	if(length(W)!=0){
 		covar=TRUE
-		W.mat=as.matrix(WW.mat)
+		W.mat=as.matrix(W)
 		qq=ncol(W.mat)
 		W=apply(W.mat,2,scale,center=TRUE,scale=TRUE)
-    	if(print.results==TRUE) cat("\nThere is a covariance matrix\n")
+    	if(!silent) cat("\nThere is a covariance matrix\n")
     	# Find the rank of W using QR decomposition
     	QR.W = qr(W, tol = 1e-06)
     	q = QR.W$rank
@@ -152,7 +81,7 @@ rdaTest <- function(YY.mat, XX.mat, WW.mat=NULL,
 	}
 	else{
 		covar=FALSE
-    	if(print.results==TRUE) cat("\nThere is no covariance matrix\n")
+    	if(!silent) cat("\nThere is no covariance matrix\n")
 	}
 
 	# If covariables W are present, regress X on W. Obtain X.res
@@ -191,21 +120,21 @@ rdaTest <- function(YY.mat, XX.mat, WW.mat=NULL,
 
 	# Test significance of the canonical F statistic
 	testFF="N"
-	if(is.null(testF)){
+	if(is.null(test.F)){
 		cat('\n')
 		cat("Test the bimultivariate F-statistic? Type 'Y' if yes, 'N' if no.",'\n')
-		testFF=toupper(scan(file="",what="character",nlines=1,quiet=T))
+		testFF=toupper(scan(file="",what="character",nlines=1,quiet=TRUE))
 	    if(testFF=="y") testFF="Y"
-	} else { if(testF==TRUE) testFF="Y" }
+	} else { if(test.F==TRUE) testFF="Y" }
 
 	if(testFF=="Y") {
 		if(is.null(nperm)){
 			cat('\n','How many permutations? Ex. 499, 999, ...','\n',sep="")
-			nper=toupper(scan(file="",what="integer",nlines=1,quiet=T))
+			nper=toupper(scan(file="",what="integer",nlines=1,quiet=TRUE))
 			nperm=as.integer(nper)
 		}
 	}
-	if(print.results==TRUE){
+	if(!silent){
    		cat('\n','----------','\n','\n',sep="")
 		cat('Bimultivariate redundancy statistic (canonical R-square):','\n')
 		cat('R-square =',Rsquare)
@@ -214,10 +143,10 @@ rdaTest <- function(YY.mat, XX.mat, WW.mat=NULL,
 	}
 
 	if(testFF=="Y") {prob<-probFrda(Y,X,n,p,m,mq,nperm,projX,projW,projXW,SS.Y,SS.Yfit.X,
-	                      covar,SS.Yfit.XW,print.results=print.results)
+	                      covar,SS.Yfit.XW,silent=silent)
 	}else{ prob = "Not tested" }
 	
-	# PCA portion of RDA: eigenanalysis, then compute the F and Z matrices, etc.
+	# PCA portion of RDA: eigenanalysis, then compute the F.mat and Z.mat matrices, etc.
 	SS.Y=SS.Y/(n-1)
 	Yhat.cov = cov(Yfit.X)
 	Yhat.eig = eigen(Yhat.cov)
@@ -244,8 +173,8 @@ rdaTest <- function(YY.mat, XX.mat, WW.mat=NULL,
 	
 	# for (scaling==1)
 	U = as.matrix(Yhat.vec[,1:k])
-	F = Y %*% U
-	Z = Yfit.X %*% U
+	F.mat = Y %*% U
+	Z.mat = Yfit.X %*% U
 	
 	# for (scaling==2)
 	lambdaSc2=vector(mode="numeric",k)
@@ -254,19 +183,19 @@ rdaTest <- function(YY.mat, XX.mat, WW.mat=NULL,
    	}
 	if(k == 1) {
 		UL=U * lambdaSc2[1]
-   		FSc2 = F * (1/lambdaSc2[1])
-   		ZSc2 = Z * (1/lambdaSc2[1])
+   		FSc2 = F.mat * (1/lambdaSc2[1])
+   		ZSc2 = Z.mat * (1/lambdaSc2[1])
    	}
 	if(k > 1) {
 		UL=U %*% diag(lambdaSc2)
-		FSc2 = F %*% diag(1/lambdaSc2)
-		ZSc2 = Z %*% diag(1/lambdaSc2)
+		FSc2 = F.mat %*% diag(1/lambdaSc2)
+		ZSc2 = Z.mat %*% diag(1/lambdaSc2)
    	}
 	# Compute the 'Biplot scores of environmental variables' --
-	# First, compute the correlations between X and Z, or X and ZSc2
+	# First, compute the correlations between X and Z.mat, or X and ZSc2
 	#
 	# Positions for scaling 1: compute the correlations...
-	corXZ=cor(X,Z)
+	corXZ=cor(X,Z.mat)
 	# ...then, weigh these correlations
 	# by the diagonal matrix 'D' of weights  sqrt(lambda(k)/SS.Y)
 	if(k == 1) { 
@@ -277,7 +206,7 @@ rdaTest <- function(YY.mat, XX.mat, WW.mat=NULL,
    	posX = corXZ %*% D
    	#
 	# Positions for scaling 2:
-	posXSc2=corXZ   # which is cor(X,Z); posXSc2=cor(X,ZSc2) produces the same result
+	posXSc2=corXZ   # which is cor(X,Z.mat); posXSc2=cor(X,ZSc2) produces the same result
 	
 	# If k = 1, compute the first PCA axis of the residuals and add it to all tables
 	if(k == 1) {
@@ -296,8 +225,8 @@ rdaTest <- function(YY.mat, XX.mat, WW.mat=NULL,
 
        canEigval = c(canEigval,Yres.eig$values[1])
        U = cbind(U,Yres.U[,1])
-       F = cbind(F,Yres.F[,1])
-       Z = cbind(Z,Yres.F[,1])
+       F.mat = cbind(F.mat,Yres.F[,1])
+       Z.mat = cbind(Z.mat,Yres.F[,1])
        UL = cbind(UL,Yres.U2[,1])
        FSc2 = cbind(FSc2,Yres.G[,1])
        ZSc2 = cbind(ZSc2,Yres.G[,1])
@@ -306,7 +235,7 @@ rdaTest <- function(YY.mat, XX.mat, WW.mat=NULL,
 	   }
 	
 	# Print results
-   	if(print.results==TRUE){
+   	if(!silent){
    		cat('\n','Number of objects:  n = ',n,'\n',sep="")
    		cat('Number of response variables in Y:  p =',p,'\n')
    		cat('Number of explanatory variables in X: ',m1,';  Rank of X:  m =',m,'\n')
@@ -327,37 +256,22 @@ rdaTest <- function(YY.mat, XX.mat, WW.mat=NULL,
 		cat('NOTE: Since there is a single canonical axis, the first residual PCA axis','\n')
 		cat('has been added to the tables to allow you to draw a biplot','\n','\n')
 		}
-	} else {}
+	}
 	
 	# Compute the "Cumulative fit per species as fraction of variance of species" table
-	Frac=FractionBySpecies(Y,UL,n,p,k,print.cum=print.cum)
+	Frac=FractionBySpecies(Y,UL,n,p,k)
 
 	# Create the output list containing the following elements:
-	#
-	# VIF=vif.res: Variance Inflation Factors (VIF)
-	# canEigval=canEigval: vector of canonical eigenvalues
-	# U=U: canonical eigenvectors normalized to 1 (scaling 1)
-	# USc2=UL: canonical eigenvectors normalized to sqrt(eigenvalue) (scaling 2)
-	# F=F: matrix of object scores (scaling 1)
-	# Z=Z: matrix of fitted object scores (scaling 1)
-	# FSc2=FSc2: matrix of object scores (scaling 2)
-	# ZSc2=ZSc2: matrix of fitted object scores (scaling 2)
-	# biplotScores1=posX: biplot scores of explanatory variables (scaling 1)
-	# biplotScores2=posXSc2: biplot scores of explanatory variables (scaling 2)
-	# FitSpe=Frac$rdaFitSpe: table of cumulative fit per species (in %) 
-	#    as fraction of variance of species
-	# VarExpl=Frac$VarExpl: vector of total % fit per species after all canonical axes 
-	# ProbFrda=prob: probability associated with F test of the canonical relationship
-	# X.mat=X.mat: original X matrix (required by the plotting function)
-
-	return(list(VIF=vif.res, canEigval=canEigval, U=U, USc2=UL, F=F, Z=Z, FSc2=FSc2, 
+	out <- list(VIF=vif.res, canEigval=canEigval, U=U, USc2=UL, F.mat=F.mat, Z.mat=Z.mat, FSc2=FSc2, 
 	       ZSc2=ZSc2, biplotScores1=posX, biplotScores2=posXSc2, FitSpe=Frac$rdaFitSpe, 
-	       VarExpl=Frac$VarExpl, ProbFrda=prob, X.mat=X.mat, Rsq=Rsquare))
+	       VarExpl=Frac$VarExpl, ProbFrda=prob, X.mat=X.mat, Rsq=Rsquare)
+	class(out) <- "rdaTest"
+	out
 }
 
 
 probFrda <- function(Y,X,n,p,m,mq,nperm,projX,projW,projXW,SS.Y,SS.Yfit.X,covar,
-                     SS.Yfit.XW,print.results=TRUE)
+                     SS.Yfit.XW,silent=FALSE)
 # This function carries out a permutation test for the bimultivariate R-square 
 # coefficient by permutation of the raw data if there are no covariables, or
 # by permutation of the residuals of the null model in the presence of covariables.
@@ -368,7 +282,7 @@ probFrda <- function(Y,X,n,p,m,mq,nperm,projX,projW,projXW,SS.Y,SS.Yfit.X,covar,
 # SS.Yfit.XW = SS of fitted values of f(Y|(X+W)).      If covariables present: [a+b+c]
 # 
 {
-    epsilon=1e-15
+    epsilon = .Machine$double.eps
 	df1=m
 	df2=n-mq-1
 	if(covar==FALSE) {
@@ -384,7 +298,7 @@ probFrda <- function(Y,X,n,p,m,mq,nperm,projX,projW,projXW,SS.Y,SS.Yfit.X,covar,
 	nPGE=1
 	vec=c(1:n)
 	if(covar==FALSE) {
-		if(print.results==TRUE) 
+		if(!silent) 
 			cat('\n','Test results, permutation of raw data Y','\n',sep="")
 		for(i in 1:nperm)
  	  	{
@@ -397,7 +311,7 @@ probFrda <- function(Y,X,n,p,m,mq,nperm,projX,projW,projXW,SS.Y,SS.Yfit.X,covar,
   	  }
   	  else {
   	  # Permute residuals of null model: permute [a+d].  SS.Yperm is not equal to SS.Y
-		if(print.results==TRUE) 
+		if(!silent) 
 			cat('\n','Test results, permutation of residuals of null model','\n',sep="")
 		for(i in 1:nperm)
  	  	{
@@ -413,13 +327,13 @@ probFrda <- function(Y,X,n,p,m,mq,nperm,projX,projW,projXW,SS.Y,SS.Yfit.X,covar,
   	  	}
   	  }
 	P=nPGE/(nperm+1)
-	if(print.results==TRUE)
+	if(!silent)
 		cat('F =',Fref,'  Prob(',nperm,'permutations) =',P,'\n')
 	return(list(F=Fref,nperm=nperm,Prob=P))
 }
 
 
-FractionBySpecies <- function(mat1,mat3,n,p,k,print.cum=FALSE) 
+FractionBySpecies <- function(mat1,mat3,n,p,k) 
 
 # This function computes the fraction of the response variable variance
 # explained by canonical axes 1, 2, 3, ... and by the whole canonical analysis.
@@ -455,18 +369,11 @@ FractionBySpecies <- function(mat1,mat3,n,p,k,print.cum=FALSE)
 	names(VarExpl)<-varnames
 	rownames(mat4)<-varnames
 	colnames(mat4)<-colnames(mat4,do.NULL=FALSE,prefix="Cum.axis")
-	if(print.cum==TRUE){
-	#	cat('Debug: Values of n =',n,'  p =',p,'  k =',k,'\n','\n')
-		cat('Cumulative fit of species as fraction of their variance ',
-			'after 1, 2, 3 ... axes','\n')
-		print(mat4)
-		cat('\n')
-	}else{}
 	return(list(rdaFitSpe=mat4,VarExpl=VarExpl))
 }
 
 
-vif<-function(mat, threshold=1.0e-12, print.vif=TRUE){
+vif <- function(mat, print.vif=TRUE)
 #
 # This function returns a vector containing Variance Inflation Factors (VIF)
 # for the explanatory variables X. VIFs are the diagonal terms of the inverse
@@ -477,9 +384,6 @@ vif<-function(mat, threshold=1.0e-12, print.vif=TRUE){
 #    Richard D. Irwin Inc., Chicago.
 #
 # mat = matrix to be filtered for collinearity.	
-# threshold = value defining the threshold for considering that a covariance matrix
-#    has a zero determinant. A covariance or correlation matrix having a zero determinant
-#    contains at least one variable that is completely collinear with the others.
 #
 # Output:
 #
@@ -489,9 +393,12 @@ vif<-function(mat, threshold=1.0e-12, print.vif=TRUE){
 #
 # Sebastien Durand and Pierre Legendre, March 2005
 #
+{
 	library(MASS)
-
-	# Assign 0 to the variables that are completely collinear with the previous variables
+	threshold <- .Machine$double.eps
+	# threshold = value defining the threshold for considering that a covariance matrix
+	#    has a zero determinant. A covariance or correlation matrix having a zero determinant
+	#    contains at least one variable that is completely collinear with the others.
 	mat.cor <- cor(mat)
 	mm = 0
 	for(i in 2:ncol(mat)){
@@ -499,7 +406,7 @@ vif<-function(mat, threshold=1.0e-12, print.vif=TRUE){
 		if(mm!=0)
 			look <- look[-mrk]
 		if( det(mat.cor[look,look]) < threshold ) {
-			if(print.vif==T) {
+			if(print.vif) {
 				cat('\n')
 				cat("Variable '",colnames(mat)[i],"' is collinear: determinant is ", 
 				    det(mat.cor),'\n')
@@ -513,13 +420,14 @@ vif<-function(mat, threshold=1.0e-12, print.vif=TRUE){
 		}	
 	}
 	
+	# Assign 0 to VIF of variables that are completely collinear with the previous variables
 	# Compute VIF for the remaining variables
 	if(mm==1){
 		vif1<-diag(ginv(cor(mat[,-mrk])))
 		vif0<-rep(0,length(mrk))
 		vif<-c(vif0,vif1)
 		nn<-1:ncol(mat)
-		vif <- round(vif[sort(c(mrk,nn[-mrk]),index.return=T)$ix],digit=2)
+		vif <- round(vif[sort(c(mrk,nn[-mrk]),index.return=TRUE)$ix],digit=2)
 	}else{
 		vif <- round(diag(ginv(cor(mat))),digit=2)
 	}

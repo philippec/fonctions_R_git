@@ -15,7 +15,6 @@ zip -f -D "$DEST/nest.anova.perm.R.zip" "nest.anova.perm.R"
 zip -f -D "$DEST/Sidak.R.zip" "Sidak.R"
 
 zip -f -D -r "$DEST/CCorA.zip" "CCorA"
-zip -f -D -r "$DEST/rdaTest.zip" "rdaTest"
 
 cd "PCA-CA/CA"
 zip -f "$DEST/CA.zip" *
@@ -32,6 +31,8 @@ R CMD build lmorigin
 R CMD build --binary lmorigin
 R CMD build parafit
 R CMD build --binary parafit
+R CMD build rdaTest
+R CMD build --binary rdaTest
 
 cp "STI_1.0_win.zip" "$DEST/"
 cp "STI_1.0_mac.tar.gz" "$DEST/"
