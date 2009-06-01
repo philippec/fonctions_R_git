@@ -1,0 +1,11 @@
+Package: CADM
+Type: Package
+Title: Congruence among distance matrices
+Version: 1.1
+Date: 2009-05-19
+Author: Pierre Legendre
+Maintainer: Pierre Legendre <pierre.legendre@umontreal.ca>
+Description: Congruence among distance matrices and a posteriori tests
+License: copyleft
+LazyLoad: yes
+Packaged: May 19 2009
