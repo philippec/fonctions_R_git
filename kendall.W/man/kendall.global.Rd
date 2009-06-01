@@ -18,7 +18,7 @@ kendall.post(Y, group, nperm = 999, mult = "holm", silent=FALSE)
   \item{group}{ A vector defining how judges should be divided into groups. See example below. If groups are not explicitly defined, all judges in the data file will be considered as forming a single group. }
   \item{nperm}{ Number of permutations to be performed. Default is 999. }
   \item{mult}{ Correct P-values for multiple testing. The methods are "holm" (default), "sidak", and "bonferroni". The Bonferroni correction is overly conservative; it is not recommended. It is included to allow comparisons with the other methods. }
-  \item{silent}{ The time to compute the tests willl not be written to the R console if silent=TRUE. Useful when the function is called by a simulation function. }
+  \item{silent}{ The time to compute the tests will not be written to the R console if silent=TRUE. Useful when the function is called by a simulation function. }
 }
 \details{
 Y must contain quantitative or semiquantitative data. They will be transformed to ranks within each column before computation of the coefficient of concordance.
@@ -67,7 +67,7 @@ Kendall, M. G. and B. Babington Smith. 1939. The problem of m rankings. Annals o
 
 Legendre, P. 2005. Species associations: the Kendall coefficient of concordance revisited. Journal of Agricultural, Biological, and Environmental Statistics 10: 226-245.
 
-Legendre, P. 2008. Coefficient of concordance. In: Encyclopedia of Research Design. SAGE Publications (in press).
+Legendre, P. 2009. Coefficient of concordance. In: Encyclopedia of Research Design. SAGE Publications (in press).
 
 Siegel, S. and N. J. Castellan, Jr. 1988. Nonparametric statistics for the behavioral sciences. 2nd edition. McGraw-Hill, New York.
 }

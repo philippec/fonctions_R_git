@@ -12,8 +12,8 @@ Compute and test the coefficient of concordance among several judges (variables,
 \tabular{ll}{
 Package: \tab kendall\cr
 Type: \tab Package\cr
-Version: \tab 2.7\cr
-Date: \tab 2008-11-15\cr
+Version: \tab 2.8\cr
+Date: \tab 2009-05-19\cr
 License: \tab Copyleft\cr
 LazyLoad: \tab yes\cr
 }
