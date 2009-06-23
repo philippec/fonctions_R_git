@@ -62,7 +62,7 @@ The function prints the following information to the R window unless \code{silen
 
 The function returns a list containing the following results and matrices:
 
-  \item{VIF }{ Variance inflation factors for the explanatory variables X; the value is 0 for entirely collinear variables. The covariables are not included in this calculation. }
+\item{VIF }{ Variance inflation factors for the explanatory variables X; the value is 0 for entirely collinear variables. The covariables are not included in this calculation. }
   \item{canEigval }{ Canonical eigenvalues. }
   \item{U }{ Canonical eigenvectors normalized to 1 (scaling 1). }
   \item{USc2 }{ Canonical eigenvectors normalized to sqrt(eigenvalue) (scaling 2). }

@@ -52,7 +52,7 @@
 	m1 = ncol(X)
 	X.cor = X
 	if(m1 > 1) {
-		vif.res=vif(X,print.vif=!silent)
+		vif.res = vif(X,print.vif=!silent)
 		if(length(which(vif.res==0))!=0) X.cor = X[,-which(vif.res==0)]
 		} else { vif.res=rep(1,m1) }
 	m=ncol(X.cor)
@@ -115,7 +115,12 @@
 	if(covar==FALSE) {
 		totalDF=n-1
 		residualDF=n-m-1
-		adjRsq = 1-((1-Rsquare)*totalDF/residualDF)
+		if(residualDF > 0) {
+			adjRsq = 1-((1-Rsquare)*totalDF/residualDF)
+			} else {
+			adjRsq = NA
+			if(!silent) cat("\nAdjusted R-square not computed: residual d.f. <= 0\n")
+			}
 	}
 
 	# Test significance of the canonical F statistic
@@ -142,9 +147,10 @@
 		cat('\n')
 	}
 
-	if(testFF=="Y") {prob<-probFrda(Y,X,n,p,m,mq,nperm,projX,projW,projXW,SS.Y,SS.Yfit.X,
+	if(testFF=="Y") {
+	prob<-probFrda(Y,X,n,p,m,mq,nperm,projX,projW,projXW,SS.Y,SS.Yfit.X,
 	                      covar,SS.Yfit.XW,silent=silent)
-	}else{ prob = "Not tested" }
+	} else { prob = "Not tested" }
 	
 	# PCA portion of RDA: eigenanalysis, then compute the F.mat and Z.mat matrices, etc.
 	SS.Y=SS.Y/(n-1)
@@ -262,9 +268,10 @@
 	Frac=FractionBySpecies(Y,UL,n,p,k)
 
 	# Create the output list containing the following elements:
-	out <- list(VIF=vif.res, canEigval=canEigval, U=U, USc2=UL, F.mat=F.mat, Z.mat=Z.mat, FSc2=FSc2, 
-	       ZSc2=ZSc2, biplotScores1=posX, biplotScores2=posXSc2, FitSpe=Frac$rdaFitSpe, 
-	       VarExpl=Frac$VarExpl, ProbFrda=prob, X.mat=X.mat, Rsq=Rsquare)
+	out <- list(VIF=vif.res, canEigval=canEigval, U=U, USc2=UL, F.mat=F.mat, 
+		Z.mat=Z.mat, FSc2=FSc2, ZSc2=ZSc2, biplotScores1=posX, 
+		biplotScores2=posXSc2, FitSpe=Frac$rdaFitSpe, 
+		VarExpl=Frac$VarExpl, ProbFrda=prob, X.mat=X.mat, Rsq=Rsquare)
 	class(out) <- "rdaTest"
 	out
 }
@@ -282,9 +289,10 @@ probFrda <- function(Y,X,n,p,m,mq,nperm,projX,projW,projXW,SS.Y,SS.Yfit.X,covar,
 # SS.Yfit.XW = SS of fitted values of f(Y|(X+W)).      If covariables present: [a+b+c]
 # 
 {
-    epsilon = .Machine$double.eps
-	df1=m
-	df2=n-mq-1
+epsilon = .Machine$double.eps
+df1=m
+df2=n-mq-1
+if(df2 > 0) {
 	if(covar==FALSE) {
 	#	cat('Debug:  SS.Y =',SS.Y,'  SS.Yfit.X =',SS.Yfit.X,'\n')
 		Fref=(SS.Yfit.X*df2)/((SS.Y-SS.Yfit.X)*df1)
@@ -327,9 +335,15 @@ probFrda <- function(Y,X,n,p,m,mq,nperm,projX,projW,projXW,SS.Y,SS.Yfit.X,covar,
   	  	}
   	  }
 	P=nPGE/(nperm+1)
-	if(!silent)
-		cat('F =',Fref,'  Prob(',nperm,'permutations) =',P,'\n')
-	return(list(F=Fref,nperm=nperm,Prob=P))
+} else {
+Fref = NA
+P = NA
+if(!silent) cat("\nF-test not computed: residual d.f. <= 0\n")
+}
+
+if(!silent) cat('F =',Fref,'  Prob(',nperm,'permutations) =',P,'\n')
+	
+return(list(F=Fref,nperm=nperm,Prob=P))
 }
 
 
