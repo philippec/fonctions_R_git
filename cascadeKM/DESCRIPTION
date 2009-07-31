@@ -1,0 +1,10 @@
+Package: cascadeKM
+Type: Package
+Title: A wrapper to kmeans partitioning 
+Version: 1.1-2
+Date: 2006-10-18
+Depends: R (>= 2.1.0), base, stats 
+Author: Sebastien Durand <Sebastien.Durand@umontreal.ca> and Pierre Legendre <Pierre.Legendre@umontreal.ca>
+Maintainer: Sebastien Durand <Sebastien.Durand@umontreal.ca>
+Description: This packages was first made to investigate the outcome of different patitions. For visual intepretation, graphical functions were also implemented. This code was optimized using Fortran language.  
+License: GPL version 2 or newer.
