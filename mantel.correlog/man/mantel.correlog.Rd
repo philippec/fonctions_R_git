@@ -30,11 +30,12 @@ cutoff=TRUE, r.type="pearson", nperm=999, mult="holm", progressive=TRUE)
 }
 
 \details{
-The Mantel tests are computed by \code{vegan}'s function \code{\link{mantel}}. 
+A correlogram is a graph in which spatial correlation values are plotted, on the
+ordinate, as a function of the geographic distance classes among the study sites along the abscissa. In a Mantel correlogram, a Mantel correlation (Mantel 1967) is computed between a multivariate (e.g. multi-species) distance matrix of the user's choice and a design matrix representing each of the geographic distance classes in turn. The Mantel statistic is tested through a permutational Mantel test performed by \code{vegan}'s \code{\link{mantel}} function. 
 
 When a correction for multiple testing is applied, more permutations are necessary than in the no-correction case, to obtain significant p-values in the higher correlogram classes.
 
-The \code{print.mantel.correlog} function prints out the correlogram. See example.
+The \code{print.mantel.correlog} function prints out the correlogram. See examples.
 }
 
 \value{ 
@@ -52,6 +53,8 @@ The \code{print.mantel.correlog} function prints out the correlogram. See exampl
 
 \references{ 
 Legendre, P. and L. Legendre. 1998. Numerical ecology, 2nd English edition. Elsevier Science BV, Amsterdam.
+
+Mantel, N. 1967. The detection of disease clustering and a generalized regression approach. Cancer Res. 27: 209-220.
 
 Oden, N. L. and R. R. Sokal. 1986. Directional autocorrelation: an extension of spatial correlograms to two dimensions. Syst. Zool. 35: 608-617.
 

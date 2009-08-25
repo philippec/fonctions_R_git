@@ -47,7 +47,8 @@ if(n.class > 0) {
 	}
 half.cl = n.class %/% 2
 
-# Move the first breakpoint a little bit to the leftepsilon <- .Machine$double.eps
+# Move the first breakpoint a little bit to the left
+epsilon <- .Machine$double.eps
 break.pts[1] = break.pts[1] - epsilon   
 
 # Find the break points and the class indices

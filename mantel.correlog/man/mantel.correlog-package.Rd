@@ -9,8 +9,8 @@ Function \code{\link{mantel.correlog}} computes a multivariate Mantel correlogra
 \tabular{ll}{
 Package: \tab mantel.correlog\cr
 Type: \tab Package\cr
-Version: \tab 1.3\cr
-Date: \tab 2009-08-13\cr
+Version: \tab 1.4\cr
+Date: \tab 2009-08-23\cr
 License: \tab Copyleft\cr
 LazyLoad: \tab yes\cr
 }
@@ -21,6 +21,8 @@ Function \code{\link{mantel.correlog}} computes a multivariate Mantel correlogra
 
 \references{
 Legendre, P. & L. Legendre. 1998. Numerical ecology, 2nd English edition. Elsevier Science BV, Amsterdam.
+
+Mantel, N. 1967. The detection of disease clustering and a generalized regression approach. Cancer Res. 27: 209-220.
 
 Oden, N. L. & R. R. Sokal. 1986. Directional autocorrelation: an extension of spatial correlograms to two dimensions. Syst. Zool. 35: 608-617.
 
