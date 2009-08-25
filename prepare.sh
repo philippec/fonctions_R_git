@@ -29,6 +29,8 @@ R CMD build CADM
 R CMD build --binary CADM
 R CMD build lmorigin
 R CMD build --binary lmorigin
+R CMD build mantel.correlog
+R CMD build --binary mantel.correlog
 R CMD build parafit
 R CMD build --binary parafit
 R CMD build rdaTest
