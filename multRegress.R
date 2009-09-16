@@ -8,6 +8,7 @@ multRegress = function(yy, XX, nperm=999)
 # nperm = number of permutations (ex. 99, 499 or 999)
 #
 # Output:
+# - the subfile  $coefficients  contains the regression coefficients
 # - the subfile  $adjusted      contains the adjusted values
 # - the subfile  $residuals     contains the regression residuals
 #
@@ -21,34 +22,36 @@ multRegress = function(yy, XX, nperm=999)
 #
 # Examples of use of the function:
 #
-#     toto = multRegress(vector_y, matrix_X, 999)
-# or  toto = multRegress(nperm=999, XX=matrix_X, yy=vector_y)
+#     res = multRegress(vector_y, matrix_X, 999)
+# or  res = multRegress(nperm=999, XX=matrix_X, yy=vector_y)
 #
 # Output elements:
-#   toto$ajuste   # contains the fitted values
-#   toto$residus  # contains the residuals
+#     res$adjusted   # contains the fitted values
+#     res$residuals  # contains the residuals
 #
 #                          Pierre Legendre, February 2005
 {
 library(MASS)  # The general inverse function 'ginv' will be used for inversion
-n=nrow(XX)
-m=ncol(XX)
-y=as.matrix(yy)
-#
+epsilon <- .Machine$double.eps
+n = nrow(XX)
+m = ncol(XX)
+y = as.matrix(yy)
 # Add a first column of '1' to matrix XX
 # Proceed in two steps: first, create a vectot of '1'; then,
 # combine this vector to the data.frame XX, using function 'cbind'
 # The resulting matrix X is of size (n x m+1)
-vecteur1=rep(1,n)
-X=as.matrix(cbind(vecteur1,XX))
+vector1 = rep(1,n)
+X = as.matrix(cbind(vector1,XX))
 #
 # Compute the multiple regression
 # See Numerical ecology 1998, p. 79, equation 2.19
 XprX = t(X) %*% X
-XprXinv = ginv(XprX)
+if(det(XprX) < epsilon) stop ('Collinearity detected in the explanatory matrix X')
+XprXinv = solve(XprX)
+# XprXinv = ginv(XprX)
 projX = X %*% XprXinv %*% t(X)
-yAjust = projX %*% y
-yRes = y - yAjust
+yAdjust = projX %*% y
+yRes = y - yAdjust
 #
 # Compute the regression coefficients
 # Print results. We will use function 'cat' instead of 'print'
@@ -60,17 +63,16 @@ cat('\n')
 #
 # Write the regression coefficients in a matrix of results
 regress.out = matrix(NA,(m+1),1)
-colnames(regress.out)=c("Coeff. de regression")
-b.names="b. 0"
-for(i in 1:m)  b.names = c(b.names, paste("b.",i))
+colnames(regress.out) = c("Coeff. de regression")
+b.names = paste("b.",0:m,sep="")
 rownames(regress.out) = b.names
 for(i in 1:(m+1))  regress.out[i,1] = b[i]
 #
 # Compute R-square
 # See Numerical ecology 1998, p. 525, equation 10.19
 vary = var(y)
-varyAjust = var(yAjust)
-Rsquare=varyAjust/vary
+varyAdjust = var(yAdjust)
+Rsquare=varyAdjust/vary
 #
 # Compute the adjusted R-square
 # See Numerical ecology 1998, p. 525, equation 10.20
@@ -79,7 +81,9 @@ Rsquare=varyAjust/vary
 # Beware: matrix X contains a column of '1', which is used to  estimate
 # the intercept. That column is already counted in 'mm' 
 XprX.eig=eigen(XprX)
-mm = length(which(XprX.eig$values > 0.00000001))
+mm = length(which(XprX.eig$values > sqrt(epsilon)))
+# mm=0
+# for(i in 1:(m+1)) { if(XprX.eig$values[i] > 0.00000001) mm=mm+1 }
 totalDF=n-1
 residualDF=n-mm
 adjRsq = 1-((1-Rsquare)*totalDF/residualDF)
@@ -103,14 +107,14 @@ nPGE=1
 for(i in 1:nperm)
    {
    yPerm = sample(y,n)
-   yAjustPerm = projX %*% yPerm
-   varyAjustPerm = var(yAjustPerm)
-   RsquarePerm = varyAjustPerm/vary
+   yAdjustPerm = projX %*% yPerm
+   varyAdjustPerm = var(yAdjustPerm)
+   RsquarePerm = varyAdjustPerm/vary
    FPerm=(RsquarePerm/nu1)/((1-RsquarePerm)/nu2)
    if(FPerm >= F) nPGE=nPGE+1
    }
 P=nPGE/(nperm+1)
 cat('F =',F,'   Prob (param) =',probF,'  Prob(',nperm,'permutations) =',P,'\n','\n')
 #
-return(list(coefficients=regress.out, ajusted=yAjust, residuals=yRes))
+return(list(coefficients=regress.out, adjusted=yAdjust, residuals=yRes))
 }
