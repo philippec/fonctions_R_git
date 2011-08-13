@@ -1,53 +1,97 @@
 `PCA` <- 
-   function(Y, stand=FALSE)
+   function(Y, stand=FALSE, cumfit.obj=TRUE, cumfit.var=TRUE)
 # 
 # Principal component analysis (PCA) with option for variable standardization
 #
 # stand = FALSE : center by columns only, do not divide by s.d.
 # stand = TRUE  : center and standardize (divide by s.d.) by columns
 #
+# cumfit.obj = TRUE: compute cumulative fit of objects
+# cumfit.var = TRUE: compute cumulative fit of variables
+#
 #          Pierre Legendre, May 2006
 {
-   Y = as.matrix(Y)
-   obj.names = rownames(Y)
-   var.names = colnames(Y)
-   size = dim(Y)
-   Y.cent = apply(Y, 2, scale, center=TRUE, scale=stand)
-   Y.cov = cov(Y.cent)
-   Y.eig = eigen(Y.cov)
-   k = length(which(Y.eig$values > 1e-10))
-   U  = Y.eig$vectors[,1:k]
-   F  = Y.cent %*% U
-   U2 = U %*% diag(Y.eig$value[1:k]^(0.5))
-   G  = F %*% diag(Y.eig$value[1:k]^(-0.5))
-   rownames(F)  = obj.names
-   rownames(U)  = var.names
-   rownames(G)  = obj.names
-   rownames(U2) = var.names
+# Begin internal functions
+sq.length <- function(vec) sum(vec^2)
+#
+'cumul.fit.var' <- function(Y,U2,n,p,k,var.names)
+	# Compute the table of "Cumulative fit per variable" 
+{
+	sp.var <- diag(var(Y))
+	res <- matrix(NA,p,k)
+	for(i in 1:p) {
+	   res[i,] <- cumsum(U2[i,]^2)/sp.var[i]
+	   }
+	rownames(res) <- var.names
+	colnames(res) <- paste("Cum.axis",1:k,sep=".")
+	res
+}
+#
+'cumul.fit.obj' <- function(Y,F,n,p,k,obj.names)
+	# Compute the table of "Cumulative fit of the objects" 
+{
+	sq.length <- function(vec) sum(vec^2)
+	res <- matrix(NA,n,k)
+	for(i in 1:n) {
+	   res[i,] <- cumsum(F[i,]^2)/sq.length(F[i,])
+	   }
+	rownames(res) <- obj.names
+	colnames(res) <- paste("Cum.axis",1:k,sep=".")
+	res
+}
+# End internal functions
+#
+   Y <- as.matrix(Y)
+   obj.names <- rownames(Y)
+   var.names <- colnames(Y)
+   n <- nrow(Y)
+   p <- ncol(Y)
+   Y.cent <- apply(Y, 2, scale, center=TRUE, scale=stand)
+   Y.cov <- cov(Y.cent)
+   Y.eig <- eigen(Y.cov)
+   k <- length(which(Y.eig$values > 1e-10))
+   U  <- Y.eig$vectors[,1:k]
+   F  <- Y.cent %*% U
+   U2 <- U %*% diag(Y.eig$value[1:k]^(0.5))
+   G  <- F %*% diag(Y.eig$value[1:k]^(-0.5))
+   rownames(F)  <- obj.names
+   rownames(U)  <- var.names
+   rownames(G)  <- obj.names
+   rownames(U2) <- var.names
    axenames <- paste("Axis",1:k,sep=" ")
-   colnames(F)  = axenames
-   colnames(U)  = axenames
-   colnames(G)  = axenames
-   colnames(U2) = axenames
-
+   colnames(F)  <- axenames
+   colnames(U)  <- axenames
+   colnames(G)  <- axenames
+   colnames(U2) <- axenames
 #
 # Fractions of variance
-   varY = sum(diag(Y.cov))
-   eigval = Y.eig$values[1:k]
-   relative = eigval/varY
-   rel.cum = vector(length=k)
-   rel.cum[1] = relative[1]
-   for(kk in 2:k) { rel.cum[kk] = rel.cum[kk-1] + relative[kk] }
+   varY <- sum(diag(Y.cov))
+   eigval <- Y.eig$values[1:k]
+   relative <- eigval/varY
+   rel.cum <- cumsum(relative)
+#
+   if(cumfit.var) {
+      cfit.var <- cumul.fit.var(Y.cent,U2,n,p,k,var.names)
+      } else {
+      cfit.var <- NULL
+      }
+#
+   if(cumfit.obj) {
+      cfit.obj <- cumul.fit.obj(Y.cent,F,n,p,k,obj.names)
+      } else {
+      cfit.obj <- NULL
+      }
 #
 out <- list(total.var=varY, eigenvalues=eigval, rel.eigen=relative, 
-       rel.cum.eigen=rel.cum, U=U, F=F, U2=U2, G=G, stand=stand, 
+       rel.cum.eigen=rel.cum, U=U, F=F, U2=U2, G=G, 
+       cumulative.fit.var=cfit.var, cumulative.fit.obj=cfit.obj, stand=stand, 
        obj.names=obj.names, var.names=var.names, call=match.call() )
 class(out) <- "PCA"
 out
 }
 
 `print.PCA` <-
-    function(x, ...)
+    function(x, kk=5, ...)
 {
     cat("\nPrincipal Component Analysis\n")
     cat("\nCall:\n")
@@ -60,6 +104,16 @@ out
     cat(x$rel.eigen,'\n')
     cat("\nCumulative relative eigenvalues",'\n')
     cat(x$rel.cum.eigen,'\n')
+    kk <- min(length(x$eigenvalues), kk)
+    if(!is.null(x$cumulative.fit.var)) {
+       cat("\nCumulative fit per variable (",kk,"axes)",'\n')
+       print(x$cumulative.fit.var[,1:kk])
+       }
+    if(!is.null(x$cumulative.fit.obj)) {
+       cat("\nCumulative fit of the objects (",kk,"axes)",'\n')
+       print(x$cumulative.fit.obj[,1:kk])
+       }
+    cat('\n')
     invisible(x) 
 }
 
@@ -113,5 +167,3 @@ invisible()
 # mite.correlog
 # mite.correlog$mantel.res
 # plot(mite.correlog)
-
-

@@ -1,5 +1,5 @@
 `CA` <- 
-   function(Y, use.svd=TRUE)
+   function(Y, use.svd=TRUE, cumfit.obj=TRUE, cumfit.var=TRUE)
 #
 # Compute correspondence analysis (CA).
 # Data table Y must contain frequencies or equivalent.
@@ -13,6 +13,35 @@
 #
 #           Pierre Legendre, UniversitŽ de MontrŽal, January 2008
 {
+# Begin internal functions
+sq.length <- function(vec) sum(vec^2)
+#
+'cumul.fit.va' <- function(Fhat,n,p,k,var.names)
+	# Compute the table of "Cumulative fit per variable" 
+{
+	sp.var <- diag(var(Y))
+	res <- matrix(NA,p,k)
+	for(i in 1:p) {
+	   res[i,] <- cumsum(Fhat[i,]^2)/sq.length(Fhat[i,])
+	   }
+	rownames(res) <- var.names
+	colnames(res) <- paste("Cum.axis",1:k,sep=".")
+	res
+}
+#
+'cumul.fit.ob' <- function(F,n,p,k,obj.names)
+	# Compute the table of "Cumulative fit of the objects" 
+{
+	res <- matrix(NA,n,k)
+	for(i in 1:n) {
+	   res[i,] <- cumsum(F[i,]^2)/sq.length(F[i,])
+	   }
+	rownames(res) <- obj.names
+	colnames(res) <- paste("Cum.axis",1:k,sep=".")
+	res
+}
+# End internal functions
+#
 Y = as.matrix(Y)
 if(min(Y) < 0) stop("Negative values not allowed in CA")
 #
@@ -66,6 +95,18 @@ Fhat = V %*% diag(values^(0.5))
 spec3 = V %*% diag(values^(0.25))                # Species scores
 site3 = Vhat %*% diag(values^(0.25))             # Site scores
 #
+   if(cumfit.var) {
+      cfit.spe <- cumul.fit.va(Fhat,n,p,k,sp.names)
+      } else {
+      cfit.spe <- NULL
+      }
+#
+   if(cumfit.obj) {
+      cfit.obj <- cumul.fit.ob(F,n,p,k,site.names)
+      } else {
+      cfit.obj <- NULL
+      }
+#
 rownames(U) <- rownames(V) <- rownames(spec3) <- rownames(Fhat) <- sp.names
 rownames(Uhat) <- rownames(F) <- rownames(Vhat) <- rownames(site3) <- site.names
 ax.names <- paste("Axis",1:k,sep="")
@@ -76,15 +117,16 @@ scaling1 <- list(species=V, sites=F)
 scaling2 <- list(species=Fhat, sites=Vhat)
 scaling3 <- list(species=spec3, sites=site3)
 scaling4 <- list(species=Fhat, sites=F)
-other <- list(U=U, Uhat=Uhat, site.names=site.names, sp.names=sp.names, Qbar=Qbar, call=match.call() )
+fit <- list(cumulfit.spe=cfit.spe, cumulfit.obj=cfit.obj)
+other <- list(U=U, Uhat=Uhat, F=F, Fhat=Fhat, site.names=site.names, sp.names=sp.names, Qbar=Qbar, call=match.call() )
 #
-out <- list(general=general, scaling1=scaling1, scaling2=scaling2, scaling3=scaling3, scaling4=scaling4, other=other)
+out <- list(general=general, scaling1=scaling1, scaling2=scaling2, scaling3=scaling3, scaling4=scaling4, fit=fit, other=other)
 class(out) <- "CA"
 out
 }
 
 `print.CA` <-
-    function(x, ...)
+    function(x, kk=5, ...)
 {
 if (!inherits(x, "CA")) stop("Object of class 'CA' expected")
     cat("\nCorrespondence Analysis\n")
@@ -97,6 +139,15 @@ if (!inherits(x, "CA")) stop("Object of class 'CA' expected")
     cat(x$general$rel.values,'\n')
     cat("\nCumulative relative eigenvalues",'\n')
     cat(x$general$cum.rel,'\n')
+    kk <- min(length(x$general$values), kk)
+    if(!is.null(x$fit$cumulfit.spe)) {
+       cat("\nCumulative fit per species (",kk,"axes)",'\n')
+       print(x$fit$cumulfit.spe[,1:kk])
+       }
+    if(!is.null(x$fit$cumulfit.obj)) {
+       cat("\nCumulative fit of the objects (",kk,"axes)",'\n')
+       print(x$fit$cumulfit.obj[,1:kk])
+       }
     cat('\n')
     invisible(x) 
 }
