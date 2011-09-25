@@ -22,6 +22,7 @@ zip -f -D "$DEST/t.paired.perm.R.zip" "t.paired.perm.R"
 
 zip -f -D -r "$DEST/CCorA.zip" "CCorA"
 zip -f -D -r "$DEST/CCA.zip" "CCA"
+zip -f -D -r "$DEST/seriation.zip" "seriation"
 
 cd "PCA-CA/CA"
 zip -f "$DEST/CA.zip" *
