@@ -1,8 +1,9 @@
 #!/bin/sh
 
-DEST="/Volumes/Louve/Users/philippe/Site ftp/Site ftp.umontreal.ca/labo/fonctions_r"
+DEST="/Users/philippe/Site ftp/Site ftp.umontreal.ca/labo/fonctions_r"
 
 find . -name ".DS_Store" -delete
+find "$DEST" -name ".DS_Store" -delete
 
 zip -f -D "$DEST/AdjustedRsquare.R.zip" "AdjustedRsquare.R"
 zip -f -D "$DEST/anova.1way.R.zip" "anova.1way.R"
