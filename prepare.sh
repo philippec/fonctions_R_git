@@ -32,9 +32,11 @@ cd "../../"
 #zip -f -j "$DEST/PCA.zip" "PCA-CA/PCA/*"
 
 R CMD build const.clust
-R CMD build --binary const.clust
+cp const.clust_1.3.tar.gz "$DEST/"
+#R CMD build --binary const.clust
 R CMD build rdaTest
-R CMD build --binary rdaTest
+cp rdaTest_1.8.tar.gz "$DEST/"
+#R CMD build --binary rdaTest
 
 #cp "STI_1.0_win.zip" "$DEST/"
 #cp "STI_1.0_mac.tar.gz" "$DEST/"

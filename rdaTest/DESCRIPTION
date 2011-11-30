@@ -1,6 +1,6 @@
 Package: rdaTest
 Type: Package
-Version: 1.7
+Version: 1.8
 Date: 2010-10-04
 Title: Canonical redundancy analysis
 Author:  Pierre Legendre and Sebastien Durand
