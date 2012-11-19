@@ -24,6 +24,7 @@ zip -f -D -r "$DEST/CCorA.zip" "CCorA"
 zip -f -D -r "$DEST/CCA.zip" "CCA"
 zip -f -D -r "$DEST/seriation.zip" "seriation"
 zip -f -D -r "$DEST/periodograph.zip" "periodograph"
+zip -f -D -r "$DEST/Periodogram_W-R.zip" "Periodogram_W-R"
 
 cd "PCA-CA/CA"
 zip -f "$DEST/CA.zip" *
