@@ -1,5 +1,11 @@
 #!/bin/sh
 
+rsync -avz "/Users/philippe/Site ftp/Site ftp.umontreal.ca/labo/" "numericalecology@adn.biol.umontreal.ca:~/labo/"  --exclude ".DS_Store" --exclude .git
+
+exit 0
+
+# Old script
+
 # Sources
 FONCTIONSR_SRC="/Users/philippe/Site ftp/Site ftp.umontreal.ca/labo/fonctions_r/"
 FONCTIONSR_DST="/Volumes/bio$/Casgrain/prog/labo/fonctions_r/"
