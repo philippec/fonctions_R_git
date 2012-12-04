@@ -22,7 +22,7 @@
 # flag(n) : vector of boolean indicator of agglomerable objects or clusters
 #
 # License: GPL-2 
-# Author: Pierre Legendre
+# Author:: Pierre Legendre
 # based on Fortran function hclust.f by F. Murtagh, modified for R by R. Hiaka
 
 {
@@ -62,7 +62,7 @@ if(method <= 2) {# ward.D and ward.D2
 	res = 0.5*diss[ind1] + 0.5*diss[ind2] - 0.25*D12
 	
 	} else if(method==9) { # Flexible
-	res = alpha*diss[ind1] + alpha*diss[ind2] - beta*D12
+	res = alpha*diss[ind1] + alpha*diss[ind2] + beta*D12
 	
 	}
 res

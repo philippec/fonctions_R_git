@@ -1,5 +1,6 @@
 \name{constrained.clust}
 \alias{constrained.clust}
+\alias{const.clust}
 \alias{map.hclust}
 \title{ Space- and time-constrained clustering }
 
@@ -26,9 +27,9 @@ map.hclust(res, coord, k1=2, k2, title=NULL, cex=2, pos=3, col="red", ...)
   \code{"single"}, \code{"complete"}, \code{"average"} (= UPGMA), 
   \code{"mcquitty"} (= WPGMA), \code{"centroid"} (= UPGMC), 
   \code{"median"} (= WPGMC), or \code{"flexible"}. Method \code{"ward.D2"} 
-  (default) implements the original Ward (1963) clustering criterion. }
+  (default) implements the Ward (1963) clustering criterion, method \code{"ward.D"} does not (Murtagh and Legendre, submitted). }
 
-  \item{beta}{ The beta parameter of flexible clustering 
+  \item{beta}{ The beta parameter of beta-flexible clustering 
   (default: \code{beta = -0.25}). }
 
   \item{verbose}{ Print additional results about the relationship of a target 
@@ -87,14 +88,16 @@ The output of the \code{\link{map.hclust}} function is a pdf file containing map
 }
 
 \author{ Pierre Legendre, Universite de Montreal, 
-based on Fortran function hclust.f by F. Murtagh, modified for R by R. Ihaka.}
+based on Fortran function hclust.f by F. Murtagh, modified for R by Ross Ihaka and Fritz Leisch.}
 
 \seealso{ \code{\link{hclust}} }
 
 \references{
 
-  Legendre, P. and L. Legendre. 1998. Numerical ecology, 2nd English
+  Legendre, P. and L. Legendre. 2012. Numerical ecology, 3rd English
   edition. Elsevier Science BV, Amsterdam.
+
+  Murtagh, F. and P. Legendre. Ward’s hierarchical agglomerative clustering method: which algorithms implement Ward’s criterion? (Submitted manuscript).
 
   Ward, J. H. 1963. Hierarchical grouping to optimize an objective function. 
   J. Amer. Statist. Assoc. 58: 236-244.
@@ -102,7 +105,7 @@ based on Fortran function hclust.f by F. Murtagh, modified for R by R. Ihaka.}
 
 \examples{ 
 ###
-### Artificial map data from Legendre & Legendre (1998, Fig. 13.24): n = 16
+### Artificial map data from Legendre & Legendre (2012, Fig. 13.26): n = 16
 
 # require(vegan)
 # require(spdep)

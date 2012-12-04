@@ -1,8 +1,9 @@
 'contiguity.mat' <- 
 	function(data, n)
-# This function constructs a contiguity matrix from the data read in a 
-# file of connexions between points.
+# This function constructs a contiguity matrix from the data read from
+# a file of connexions between points.
 #
+# Licence: GPL-2
 # Author: Pierre Legendre
 {
 mat <- matrix(0, n, n)
