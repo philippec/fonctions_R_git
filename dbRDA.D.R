@@ -58,7 +58,7 @@ dbRDA.D <- function(D, X, nperm=999, compute.eig=FALSE, coord=FALSE)
 {
 	D <- as.matrix(D)
 	n <- nrow(D)
-	m <- ncol(X)
+	m <- qr(X, tol=1e-6)$rank
 	X <- scale(X, center=TRUE, scale=FALSE)   # Centre matrix X
 	epsilon <- sqrt(.Machine$double.eps) 
 #
