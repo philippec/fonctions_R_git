@@ -13,6 +13,8 @@ zip -f -D "$DEST/anova.3way.R.zip" "anova.3way.R"
 zip -f -D "$DEST/broken.stick.R.zip" "broken.stick.R"
 zip -f -D "$DEST/corPerm.R.zip" "corPerm.R"
 zip -f -D "$DEST/dagnelie.test.R.zip" "dagnelie.test.R"
+zip -f -D "$DEST/dbRDA.D.R.zip" "dbRDA.D.R"
+zip -f -D "$DEST/hclust.PL.R.zip" "hclust.PL.R"
 zip -f -D "$DEST/multRegress.R.zip" "multRegress.R"
 zip -f -D "$DEST/manova.2way.unbalanced.R.zip" "manova.2way.unbalanced.R"
 zip -f -D "$DEST/nest.anova.perm.R.zip" "nest.anova.perm.R"
@@ -35,10 +37,12 @@ cd "../../"
 
 R CMD build const.clust
 cp const.clust_1.3.tar.gz "$DEST/"
-#R CMD build --binary const.clust
+#R CMD INSTALL --build const.clust
 R CMD build rdaTest
 cp rdaTest_1.8.tar.gz "$DEST/"
-#R CMD build --binary rdaTest
+R CMD INSTALL --build rdaTest
+cp "rdaTest_1.8.tgz" "$DEST/"
+cp "rdaTest_1.8.zip" "$DEST/"
 
 #cp "STI_1.0_win.zip" "$DEST/"
 #cp "STI_1.0_mac.tar.gz" "$DEST/"
