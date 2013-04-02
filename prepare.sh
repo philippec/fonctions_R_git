@@ -27,6 +27,7 @@ zip -f -D -r "$DEST/CCA.zip" "CCA"
 zip -f -D -r "$DEST/seriation.zip" "seriation"
 zip -f -D -r "$DEST/periodograph.zip" "periodograph"
 zip -f -D -r "$DEST/Periodogram_W-R.zip" "Periodogram_W-R"
+zip -f -D -r "$DEST/beta-diversity.zip" "beta-diversity"
 
 cd "PCA-CA/CA"
 zip -f "$DEST/CA.zip" *
