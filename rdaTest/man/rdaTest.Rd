@@ -78,8 +78,8 @@ The function returns a list containing the following results and matrices:
   \item{F.sc2 }{ Matrix of object scores (scaling 2). }
   \item{biplotScores1 }{ Biplot scores of explanatory variables (scaling 1). }
   \item{biplotScores2 }{ Biplot scores of explanatory variables (scaling 2). }
-  \item{FitSpe }{ Table of cumulative fit per species (in percent) as fraction of variance of species. }
-  \item{VarExpl }{ Vector of total percent fit per species after all canonical axes. }
+  \item{fit.species }{ A table of cumulative fit of the species along RDA axes 1, 2, 3, etc. }
+  \item{fit.sites }{ A table of cumulative fit of the sites along RDA axes 1, 2, 3, etc. }
   \item{ProbFrda }{ Probability associated with F test of the canonical relationship. }
   \item{X.mat }{ Original X matrix (required by the plotting function). }
   \item{Rsquare }{ Canonical R-square. }
@@ -90,7 +90,7 @@ The function returns a list containing the following results and matrices:
 \references{ 
 Aart, P. J. M. (van der) and N. Smeenk-Enserink. 1975. Correlations between distributions of hunting spiders (Lycosidae, Ctenidae) and environmental characteristics in a dune area. Neth. J. Zool. 25: 1-45.
 
-Legendre, P. and Legendre, L. 1998. Numerical Ecology. 2nd English ed. Elsevier, Amsterdam. 
+Legendre, P. and Legendre, L. 2012. Numerical Ecology. 3rd English ed. Elsevier, Amsterdam. 
 }
 
 \seealso{ \code{\link{plot.rdaTest}} and \code{\link{test.axes}} }

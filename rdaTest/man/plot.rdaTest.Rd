@@ -26,7 +26,7 @@ mar.perc=NULL, interior.mar.perc=0.05, select.spe=NULL, ...)
   \item{x }{ The rdaTest output object. The most simple call to this function is to provide only the output object name of function \code{\link{rdaTest}}. Ex.: plot.rdaTest(toto) or plot(toto). }
   \item{xax, yax }{ Canonical axes that will be used for the triplot. These value can be negative; if so, the plot axes will be reversed. }
   \item{scaling }{ Allows the user to choose between the two scaling types, 1 or 2, for the triplots: scaling = 1: distance triplot (default); scaling = 2: correlation triplot. }
-  \item{graph.type }{ Either "F" or "Z" -- "F"= site scores, "Z" = fitted site scores. }
+  \item{graph.type }{ Either "F" or "Z" -- "F" = site scores, "Z" = fitted site scores. }
   \item{plot.sites }{ If TRUE, the sites will be plotted as small circles. }
   \item{plot.spe }{ If TRUE, the species (or other response variables) will be plotted. }
   \item{plot.env }{ If TRUE, the explanatory (environmental) variables will be plotted. }
@@ -89,7 +89,7 @@ Scaling type 2 triplot uses matrices ZSc2 or FSc2 for objects and USc2 for varia
 \references{ 
 Aart, P. J. M. (van der) and N. Smeenk-Enserink. 1975. Correlations between distributions of hunting spiders (Lycosidae, Ctenidae) and environmental characteristics in a dune area. Neth. J. Zool. 25: 1-45.
 
-Legendre, P. and Legendre, L. 1998. Numerical Ecology. 2nd English ed. Elsevier, Amsterdam. 
+Legendre, P. and Legendre, L. 2012. Numerical Ecology. 3rd English ed. Elsevier, Amsterdam. 
 }
 
 \seealso{ \code{\link{rdaTest}} }

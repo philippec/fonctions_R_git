@@ -44,7 +44,7 @@
 	# If(scale.Y == TRUE), check the presence of Y.mat variables 
 	# with null variances
 	if(scale.Y) {
-		mat.sd <- sd(Y.mat)
+		mat.sd <- apply(Y.mat,2,sd)
 		problem = FALSE
 		for(i in 1:length(mat.sd)) {
 		   if(mat.sd[i] == 0) {
@@ -57,7 +57,7 @@
 		}
 
 	# Check the presence of X.mat variables with null variances
-	mat.sd <- sd(X.mat)
+	mat.sd <- apply(X.mat,2,sd)
 	problem = FALSE
 	for(i in 1:length(mat.sd)) {
 	   if(mat.sd[i] == 0) {
@@ -202,8 +202,6 @@
 
 	# For (scaling==1)
 	U <- as.matrix(Y.fit.eig$v[,1:k])     # Same as eigen(cov(Y.fit))$vectors
-	colnames(U) <- axenames
-	rownames(U) <- colnames(Y, do.NULL = FALSE, prefix = "p")
 	F.sc1 = Y %*% U
 	Z.sc1 = Yfit.X %*% U
 	
@@ -217,6 +215,12 @@
 		F.sc2 = F.sc1 %*% diag(1/sqrt(eig.values/(n-1)))
 		Z.sc2 = Z.sc1 %*% diag(1/sqrt(eig.values/(n-1)))
    		}
+	var.names <- colnames(Y,do.NULL=FALSE,prefix="Var")
+	rownames(U)     <- rownames(U.sc2) <- var.names
+	rownames(F.sc1) <- rownames(Z.sc1) <- sitenames
+	rownames(F.sc2) <- rownames(Z.sc2) <- sitenames
+	colnames(U)     <- colnames(F.sc1) <- colnames(Z.sc1) <- axenames
+	colnames(U.sc2) <- colnames(F.sc2) <- colnames(Z.sc2) <- axenames
 
 	# Compute the 'Biplot scores of environmental variables' --
 	#
@@ -245,8 +249,6 @@
    	
 	# Biplot scores for scaling 2:
 	posX.sc2 = corXZ                      # = cor(X,Z.sc1) = cor(X,Z.sc2)
-	rownames(posX.sc1) = colnames(XX)
-	rownames(posX.sc2) = colnames(XX)
 	
 	# If k = 1, compute the first PCA of the residuals and add it to all tables
 	if(k == 1) {
@@ -255,8 +257,8 @@
        Yres.values <- (Yres.eig$d^2)      # = eigen(cov(Yres.X))$values*(n-1)
        k1 <- sum(Yres.values > epsilon)
 
-       Yres.U <- Yres.eig$v[,1:k1]        # PCA eigenvectors 
-       Yres.F <- Yres.X %*% Yres.U
+       Yres.U <- as.matrix(Yres.eig$v[,1:k1])        # PCA eigenvectors 
+       Yres.F <- as.matrix(Yres.X %*% Yres.U)
 
        Yres.U2 <- as.matrix(Yres.U[,1]) * (Yres.values[1]^(0.5))
        Yres.G  <- as.matrix(Yres.F[,1]) * (Yres.values[1]^(-0.5))
@@ -270,15 +272,18 @@
        Z.sc2 = cbind(Z.sc2, Yres.G)
        posX.sc1 = cbind(posX.sc1, 0)
        posX.sc2 = cbind(posX.sc2, 0)
-       colnames(U) = c("Axis1","PCA_Axis1")
-       colnames(U.sc2) = c("Axis1","PCA_Axis1")
-       colnames(F.sc1) = c("Axis1","PCA_Axis1")
-       colnames(F.sc2) = c("Axis1","PCA_Axis1")
-       colnames(Z.sc1) = c("Axis1","PCA_Axis1")
-       colnames(Z.sc2) = c("Axis1","PCA_Axis1")
-       colnames(posX.sc1) = c("Axis1","PCA_Axis1")
-       colnames(posX.sc2) = c("Axis1","PCA_Axis1")
+       colnames(U) <- colnames(U.sc2) <- c("Axis1","PCA_Axis1")
+       colnames(F.sc1) <- colnames(F.sc2) <- c("Axis1","PCA_Axis1")
+       colnames(Z.sc1) <- colnames(Z.sc2) <- c("Axis1","PCA_Axis1")
+       colnames(posX.sc1) <- colnames(posX.sc2) <- c("Axis1","PCA_Axis1")
 	   }
+	if(m==1) {
+		rownames(posX.sc1) <- rownames(posX.sc2) <- "Expl"
+		} else {
+		rownames(posX.sc1) <- colnames(XX,do.NULL=FALSE,prefix="Expl")
+		rownames(posX.sc2) <- colnames(XX,do.NULL=FALSE,prefix="Expl")
+		}
+	if(k>1) colnames(posX.sc1) <- colnames(posX.sc2) <- axenames
 	
 	# Print results
    	if(!silent)	{
@@ -313,15 +318,58 @@
 	# is unchanged. All fractions are therefore with respect to the original
 	# variance [of the species]."
 	
-	Frac <- FractionBySpecies(YY,U.sc2,n,p,k)
+	cumfit <- cumulfit.rdaTest(YY, n, p, k, U, Z.sc1, F.sc1)
+	# Frac <- FractionBySpecies(YY,U.sc2,n,p,k)
+	rownames(cumfit$fit.species) <- var.names
+	rownames(cumfit$fit.sites) <- sitenames
 
 	# Create the output list containing the following elements:
+#	if(k>1) {
 	out <- list(VIF=vif.res, eig.values=eig.values/(n-1), U.sc1=U, U.sc2=U.sc2,
 		Z.sc1=Z.sc1, Z.sc2=Z.sc2, F.sc1=F.sc1, F.sc2=F.sc2,
-		biplotScores1=posX.sc1, biplotScores2=posX.sc2, FitSpe=Frac$rdaFitSpe, 
-		VarExpl=Frac$VarExpl, ProbFrda=prob, X.mat=X.mat, Rsquare=Rsquare)
+		biplotScores1=posX.sc1, biplotScores2=posX.sc2, 
+		fit.species=cumfit$fit.species, fit.sites=cumfit$fit.sites,
+		ProbFrda=prob, X.mat=X.mat, Rsquare=Rsquare)
+#	} else {
+#	out <- list(VIF=vif.res, eig.values=eig.values/(n-1), U.sc1=U, U.sc2=U.sc2,
+#		Z.sc1=Z.sc1, Z.sc2=Z.sc2, F.sc1=F.sc1, F.sc2=F.sc2,
+#		biplotScores1=posX.sc1, biplotScores2=posX.sc2, ProbFrda=prob, 
+#		X.mat=X.mat, Rsquare=Rsquare) }
 	class(out) <- "rdaTest"
 	out
+}
+
+cumulfit.rdaTest <- function(YY, n, p, k, U.sc1, Z.sc1, F.sc1)
+# Compute the fractions of the response variables' variances (R2) explained
+# by PCA or canonical axes 1, 2, 3, ..., as well as the cumulative fit of 
+# the sites along these same axes.
+#
+# Pierre Legendre, August 2012
+{
+### Internal function
+	sq.length <- function(vec) sum(vec^2)
+### End internal function
+#
+# Extract rownames, etc.
+	site.names <- rownames(F.sc1)
+	spec.names <- rownames(U.sc1)
+#
+# Cumulative fit of the species
+	Rsq.mat <- matrix(NA,p,k)
+	rownames(Rsq.mat) <- spec.names
+	colnames(Rsq.mat) <- paste("Axis",1:k,sep="")
+	Rsq.mat <- cor(YY, Z.sc1)^2
+#
+# Cumulative ﬁt of the objects
+	cum.obj <- matrix(NA,n,k)
+	ref.obj <- apply(YY,1,sq.length)
+	cum.obj[,1] <- F.sc1[,1]^2
+	if(k>1) for(j in 2:k) cum.obj[,j] <- apply(F.sc1[,1:j],1,sq.length)
+	cum.obj <- diag(1/ref.obj) %*% cum.obj
+	rownames(cum.obj) <- site.names
+	colnames(cum.obj) <- paste("Axis",1:k,sep="")
+#
+	list(fit.species=t(apply(Rsq.mat,1,cumsum)), fit.sites=cum.obj)
 }
 
 probFrda <- function(YY,X,n,p,m,mq,nperm,qr.X,qr.W,qr.XW,SS.Y,SS.Yfit.X,
@@ -399,15 +447,15 @@ if(!silent) cat('F =',F.ref,'  Prob(',nperm,'permutations) =',P,'\n')
 return(list(F=F.ref,nperm=nperm,Prob=P))
 }
 
-FractionBySpecies <- function(mat1,mat3,n,p,k) 
+FractionBySpecies <- function(mat1,U2,n,p,k) 
 
 # This function computes the fractions of the response variables' variances (R2)
 # explained by canonical axes 1, 2, 3, ... and by the whole canonical analysis.
 #
 # mat1 (nxp) is the site-by-species data table Y
-# spSS (p) is a vector containing the species sums-of-squares
-# mat3 (pxk) contains the species scores (matrix U.sc2) from PL's rda
-# mat4 (pxk) contains the results, found in the output element $rdaFitSpe
+# sp.var (p) is a vector containing the species variances
+# U2 (pxk) contains the species scores (matrix U.sc2) from PL's rda
+# res (pxk) contains the results, found in the output element $rdaFitSpe
 # The output element  $VarExpl  contains the % of each species'
 #    variance explained by the canonical analysis
 #
@@ -417,27 +465,24 @@ FractionBySpecies <- function(mat1,mat3,n,p,k)
 #                    variance of species
 #	Frac$VarExpl     vector of total % fit per species after all axes
 {
-	#	n = nrow(mat1)
-	#	p = ncol(mat1)
-	#	k = ncol(mat3)
-	spSS=diag(var(mat1))
-	mat4=matrix(NA,p,k)
-	VarExpl=vector(mode="numeric",p)
+	sp.var <- diag(var(mat1))
+	res <- matrix(NA,p,k)
+	VarExpl <- vector(mode="numeric",p)
 	for(i in 1:p) {
-	   ss=0.0
-	   for(j in 1:k) {
-	      ss=ss+(mat3[i,j]^2)
-	      mat4[i,j]=100*ss/spSS[i]
-	   } 
-	   VarExpl[i]=mat4[i,k]
+#	   var.expl=0.0
+#	   for(j in 1:k) {
+#	      var.expl=var.expl+(U2[i,j]^2)
+#	      res[i,j]=100*var.expl/sp.var[i]
+#	   } 
+	   res[i,] <- 100*cumsum(U2[i,1:k]^2)/sp.var[i]
+	   VarExpl[i] <- res[i,k]
 	}
-	varnames<-colnames(mat1,do.NULL = FALSE, prefix = "p")
-	names(VarExpl)<-varnames
-	rownames(mat4)<-varnames
-	colnames(mat4)<-colnames(mat4,do.NULL=FALSE,prefix="Cum.axis")
-	return(list(rdaFitSpe=mat4,VarExpl=VarExpl))
+	varnames <- colnames(mat1,do.NULL = FALSE, prefix = "p")
+	names(VarExpl) <- varnames
+	rownames(res) <- varnames
+	colnames(res) <- colnames(res,do.NULL=FALSE,prefix="Cum.axis")
+	return(list(rdaFitSpe=res,VarExpl=VarExpl))
 }
-
 
 vif <- function(mat, print.vif=TRUE)
 #

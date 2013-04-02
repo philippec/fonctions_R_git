@@ -49,9 +49,9 @@ The function returns a list containing the following results and matrices:
 \references{ 
 Freedman, D., and D. Lane. 1983. A nonstochastic interpretation of reported significance levels. Journal of Business & Economic Statistics 1: 292-298.
 
-Legendre, P. and Legendre, L. 1998. Numerical Ecology. 2nd English ed. Elsevier, Amsterdam. 
+Legendre, P. and Legendre, L. 2012. Numerical Ecology. 3rd English ed. Elsevier, Amsterdam. 
 
-Legendre, P., J. Oksanen, and C. J. F. ter Braak. 2011. Testing the significance of canonical axes in redundancy analysis. Methods in Ecology and Evolution (in press).
+Legendre, P., J. Oksanen, and C. J. F. ter Braak. 2011. Testing the significance of canonical axes in redundancy analysis. Methods in Ecology and Evolution 2: 269-277.
 
 ter Braak, C. J. F., and P. Smilauer. 2002. CANOCO reference manual and CanoDraw for Windows user’s Guide – Software for canonical community ordination (version 4.5). Microcomputer Power, Ithaca, New York. 
 }
@@ -59,7 +59,7 @@ ter Braak, C. J. F., and P. Smilauer. 2002. CANOCO reference manual and CanoDraw
 \seealso{ \code{\link{rdaTest}} }
 
 \examples{
-## Analysis of Table 11.3 of Legendre and Legendre (1998, p. 590)  
+## Analysis of Table 11.3 of Legendre and Legendre (2012, p. 644)  
 data(Table.11.3)
 Y = Table.11.3[,1:6]
 X = Table.11.3[,7:10]

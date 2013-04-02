@@ -26,6 +26,6 @@ Function \code{\link{test.axes}} tests the significance of the individual canoni
 \author{ Pierre Legendre and Sebastien Durand, Universite de Montreal }
 
 \references{
-Legendre, P. and Legendre, L. 1998. Numerical Ecology. 2nd English ed. Elsevier, Amsterdam. }
+Legendre, P. and Legendre, L. 2012. Numerical Ecology. 3rd English ed. Elsevier, Amsterdam. }
 
 \keyword{ package }

@@ -16,9 +16,11 @@
 # Version 1.3: Pierre Legendre, Université de Montréal, October 2010
 {
     #### Internal function
-	larger.frame <- function(mat, percent=0.05)
+	larger.frame <- function(mat, percent=0.05, xinv, yinv)
 	# Produce an object plot 10% larger than strictly necessary
 	{
+	if(xinv<0) mat[,1] <- -mat[,1]
+	if(yinv<0) mat[,2] <- -mat[,2]
 	range.mat = apply(mat,2,range)
 	z <- apply(range.mat, 2, function(x) x[2]-x[1])
 	range.mat[1,]=range.mat[1,]-z*percent
@@ -27,7 +29,7 @@
 	}
 	####
 
-# Axis reversion filter
+# Save plot
 	if(saveplot==TRUE){
 		if(is.null(path)){
 			cat("Type a file name describing this plot: ex.: toto","\n")
@@ -55,7 +57,7 @@
 	old.par <- par(no.readonly=TRUE) # all par settings that can be changed.
  	on.exit(par(old.par))
 	
-	
+# Axis reversion filter
 	xinv <- 1
 	if(xax < 0) {
 		xinv <- (-1)
@@ -66,9 +68,12 @@
 		yinv <- (-1)
 		yax  <- -(yax)
 	}
-	if(xax > ncol(x$F.sc1))
+	k <- length(x$eig.values)
+	if(colnames(x$U.sc1)[2] == "PCA_Axis1") k <- 1
+	# cat("k =",k,"\n")
+	if(xax > length(x$eig.values) | xax > k)
 		stop("Their are not enough canonical axes; change the xax value")
-	if(yax > ncol(x$F.sc1))
+	if(yax > length(x$eig.values))
 		stop("Their are not enough canonical axes; change the yax value")
 
 # Scaling 	
@@ -123,7 +128,7 @@
 
 	#Interior margin of the plot (space between outer points and frame)
 	if(is.null(xlim) & is.null(ylim)) {
-		lf.Z = larger.frame(x$Z.sc1[,c(xax,yax)], percent=interior.mar.perc)
+	lf.Z=larger.frame(x$Z.sc1[,c(xax,yax)],percent=interior.mar.perc, xinv,yinv)
 		xlim <- lf.Z[,1]
 		ylim <- lf.Z[,2]
 		}
@@ -134,10 +139,19 @@
        type="n"
        label.sites=FALSE
        }
+    if(colnames(x$U.sc1)[2] == "PCA_Axis1") {
+    # cat("If TRUE, colnames(x$U.sc1)[2] =", colnames(x$U.sc1)[2],"\n")
+	plot(xinv*x$Z.sc1[,xax], yinv*x$Z.sc1[,yax], xlim=xlim, ylim=ylim, asp=1,
+	    cex=cex, cex.lab=cex.lab, cex.axis=cex.axis,
+		xlab=paste("Canonical axis",xax), ylab=paste("Residual PCA axis 1"), 
+		type=type)
+	} else {
+    # cat("If FALSE, colnames(x$U.sc1)[2] =", colnames(x$U.sc1)[2],"\n")
 	plot(xinv*x$Z.sc1[,xax], yinv*x$Z.sc1[,yax], xlim=xlim, ylim=ylim, asp=1,
 	    cex=cex, cex.lab=cex.lab, cex.axis=cex.axis,
 		xlab=paste("Canonical axis",xax), ylab=paste("Canonical axis",yax), 
 		type=type)
+	}
 	if(label.sites) {
 		text(xinv*x$Z.sc1[,xax], yinv*x$Z.sc1[,yax], rownames(x$Z.sc1), 
 		col=col.site, cex=cex, pos=pos.sites)
@@ -174,7 +188,7 @@
 	} else {
 		remain<-seq(1, ncol(x$X.mat),by=1)	
 	}
-	if(length(remain)!=0) {
+	if(length(remain)!=0) { # Draw environmental variable arrows
 		arrows(x0=0,y0=0,xinv*x$biplotScores1[remain,xax]*mult.env,
 			yinv*x$biplotScores1[remain,yax]*mult.env, lty=lty.env,col=col.env, 
 			code=2, len=len,lwd=1)
@@ -184,7 +198,7 @@
 				rownames(x$biplotScores1)[remain], col = col.env,cex=cex)
     }	
 
-	# Draw environmental variable arrows	
+	# Draw additional axes on top and right of graph for environmental variables
 	len=9
 	axis(3, at = seq(-mult.env,mult.env,length=len), 
 		labels=round(seq(-1,1,length=len),digit=2), 
