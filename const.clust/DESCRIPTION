@@ -1,7 +1,7 @@
 Package: const.clust
 Type: Package
-Version: 1.2
-Date: 2011-02-07
+Version: 1.3
+Date: 2012-11-23
 Title: Space- and time-constrained clustering package
 Author:  Pierre Legendre
 Maintainer: Pierre Legendre <pierre.legendre@umontreal.ca>
@@ -10,5 +10,5 @@ Description: space-constrained or time-constrained agglomerative clustering from
 License: GPL-2
 LazyLoad: yes
 Revision: 0
-Packaged: February 7, 2011
+Packaged: November 23, 2012
 Namespace: auto
