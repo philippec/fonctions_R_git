@@ -40,10 +40,10 @@ R CMD build const.clust
 cp const.clust_1.3.tar.gz "$DEST/"
 #R CMD INSTALL --build const.clust
 R CMD build rdaTest
-cp rdaTest_1.8.tar.gz "$DEST/"
+cp rdaTest_1.10.tar.gz "$DEST/"
 R CMD INSTALL --build rdaTest
-cp "rdaTest_1.8.tgz" "$DEST/"
-cp "rdaTest_1.8.zip" "$DEST/"
+cp "rdaTest_1.10.tgz" "$DEST/"
+cp "rdaTest_1.10.zip" "$DEST/"
 
 #cp "STI_1.0_win.zip" "$DEST/"
 #cp "STI_1.0_mac.tar.gz" "$DEST/"
