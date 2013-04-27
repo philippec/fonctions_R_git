@@ -1,18 +1,21 @@
-beta.div <- function(Y, method="hellinger", sqrt.D=FALSE, samp=TRUE)
+beta.div <- function(Y, method="hellinger", sqrt.D=FALSE, samp=TRUE, nperm=999, save.D=FALSE)
 #
 # Compute estimates of total beta diversity as the total variance in Y, 
-# for 17 dissimilarity coefficients or analysis of the raw data.
+# for 17 dissimilarity coefficients or analysis of the raw data. 
+# LCBD are tested by permutation within columns of Y.
+### The test of SCDB in this experimental function is probably incorrect.
 #
 # Arguments --
-# Y: community composition data matrix.
-# method: name of one of the 17 dissimilarity coefficients, or "none" 
-# for direct calculation on Y (also the case with method="euclidean").
+# Y : community composition data matrix.
+# method : name of one of the 17 dissimilarity coefficients, or "none" for
+#          direct calculation on Y (also the case with method="euclidean").
+# nperm : Number of permutations for test of LCBD.
 #
 # License: GPL-2 
-# Author:: Pierre Legendre, December 2012
+# Author:: Pierre Legendre, December 2012, April 2013
 {
-### Internal function
-	centre <- function(D,n)
+### Internal functions
+centre <- function(D,n)
 	# Centre a square matrix D by matrix algebra
 	# mat.cen = (I - 11'/n) D (I - 11'/n)
 	{	One <- matrix(1,n,n)
@@ -20,12 +23,8 @@ beta.div <- function(Y, method="hellinger", sqrt.D=FALSE, samp=TRUE)
 		mat.cen <- mat %*% D %*% mat
 	}
 ###
-require(vegan)
-# require(ade4)
-method <- match.arg(method, c("euclidean", "manhattan", "modmeanchardiff", "profiles", "hellinger", "chord", "chisquare", "divergence", "canberra", "whittaker", "percentagedifference", "wishart", "kulczynski", "ab.jaccard", "ab.sorensen","ab.ochiai","ab.simpson","none"))
-n <- nrow(Y)
-#
-if(any(method == c("euclidean", "profiles", "hellinger", "chord", "chisquare","none"))) {
+BD.group1 <- function(Y, method, save.D, per)
+	{
 	if(method=="profiles") Y = decostand(Y, "total")
 	if(method=="hellinger") Y = decostand(Y, "hellinger")
 	if(method=="chord") Y = decostand(Y, "norm")
@@ -34,51 +33,111 @@ if(any(method == c("euclidean", "profiles", "hellinger", "chord", "chisquare","n
 	s <- scale(Y, center=TRUE, scale=FALSE)^2   # eq. 1
 	SStotal <- sum(s)          # eq. 2
 	BDtotal <- SStotal/(n-1)   # eq. 3
-	SCBD <- apply(s, 2, sum)/SStotal  # eqs. 4a and 4b
+ 	if(!per) { SCBD<-apply(s,2,sum)/SStotal }else{ SCBD<-NA }  # eqs. 4a and 4b
 	LCBD <- apply(s, 1, sum)/SStotal  # eqs. 5a and 5b
-	note = "Info -- This coefficient is Euclidean"
+	#
+	D <- NA
+	if(!per & save.D)   D <- dist(Y)
+	#
 	out <- list(SStotal_BDtotal=c(SStotal,BDtotal), SCBD=SCBD, LCBD=LCBD, 
-	method=method, note=note)
-	
-} else {
-	
+	method=method, D=D)
+	}
+###
+BD.group2 <- function(Y, method, sqrt.D)
+	{
 	if(method == "divergence") {
 		D = D11(Y)		
-		note = "Info -- This coefficient is Euclidean"
-		#
-	} else
-	if(any(method == c("manhattan", "canberra", "whittaker", "percentagedifference", "wishart"))) {
+	} else if(any(method == 
+	  c("manhattan","canberra","whittaker","percentagedifference","wishart"))) 
+		{
 		if(method=="manhattan") D = vegdist(Y, "manhattan")
 		if(method=="canberra")  D = vegdist(Y, "canberra")
 		if(method=="whittaker") D = vegdist(decostand(Y,"total"),"manhattan")/2
 		if(method=="percentagedifference") D = vegdist(Y, "bray")
 		if(method=="wishart")   D = WishartD(Y)		
-		if(sqrt.D) {
-		note = "Info -- This coefficient, in the form sqrt(D), is Euclidean"
-			} else {
-		note = c("Info -- For this coefficient, sqrt(D) would be Euclidean", 
-		"Use is.euclid(D) of ade4 to check Euclideanarity of this D matrix")
-			}
-	} else {
+		} else {
 		if(method=="modmeanchardiff") D = D19(Y)
 		if(method=="kulczynski")  D = vegdist(Y, "kulczynski")
 		if(method=="ab.jaccard")  D = chao(Y, coeff="Jaccard", samp=samp)
 		if(method=="ab.sorensen") D = chao(Y, coeff="Sorensen", samp=samp)
 		if(method=="ab.ochiai")   D = chao(Y, coeff="Ochiai", samp=samp)
 		if(method=="ab.simpson")  D = chao(Y, coeff="Simpson", samp=samp)
-		note = c("Info -- This coefficient is not Euclidean", 
-		"Use is.euclid(D) of ade4 to check Euclideanarity of this D matrix")
-	}
+		}
 	#
 	if(sqrt.D) D = sqrt(D)
 	SStotal <- sum(D^2)/n      # eq. 8
 	BDtotal <- SStotal/(n-1)   # eq. 3
-	SCBD <- NA
 	delta1 <- centre(as.matrix(-0.5*D^2), n)   # eq. 9
 	LCBD <- diag(delta1)/SStotal               # eq. 10b
+	#
+	out <- list(SStotal_BDtotal=c(SStotal,BDtotal), LCBD=LCBD, 
+	method=method, D=D)
+	}
+###
+###
+require(vegan)
+method <- match.arg(method, c("euclidean", "manhattan", "modmeanchardiff", "profiles", "hellinger", "chord", "chisquare", "divergence", "canberra", "whittaker", "percentagedifference", "wishart", "kulczynski", "ab.jaccard", "ab.sorensen","ab.ochiai","ab.simpson","none"))
+n <- nrow(Y)
+#
+if(any(method == 
+c("euclidean", "profiles", "hellinger", "chord", "chisquare","none"))) {
+	note <- "Info -- This coefficient is Euclidean"
+	res <- BD.group1(Y, method, save.D, per=FALSE)
+	#
+	# Permutation test for LCBD indices, distances group 1
+	if(nperm>0) {
+		p <- ncol(Y)
+		nGE.L = rep(1,n)
+		for(iperm in 1:nperm) {
+			Y.perm = apply(Y,2,sample)
+			res.p <- BD.group1(Y.perm, method, save.D, per=TRUE)
+			ge <- which(res.p$LCBD >= res$LCBD)
+			nGE.L[ge] <- nGE.L[ge] + 1
+			}
+		p.LCBD <- nGE.L/(nperm+1)
+		} else { p.LCBD <- NA }
+	#
+	if(save.D) { D <- res$D } else { D <- NA }
+	#
+	out <- list(SStotal_BDtotal=res$SStotal_BDtotal, SCBD=res$SCBD, 
+	LCBD=res$LCBD, p.LCBD=p.LCBD, method=method, note=note, D=D)
+
+} else {
+#
+	if(method == "divergence") {
+		note = "Info -- This coefficient is Euclidean"
+	} else if(any(method == 
+	  c("manhattan","canberra","whittaker","percentagedifference","wishart"))) {
+		if(sqrt.D) {
+		note = "Info -- This coefficient, in the form sqrt(D), is Euclidean"
+		} else {
+		note = c("Info -- For this coefficient, sqrt(D) would be Euclidean", 
+		"Use is.euclid(D) of ade4 to check Euclideanarity of this D matrix")
+		}
+	} else {
+		note = c("Info -- This coefficient is not Euclidean", 
+		"Use is.euclid(D) of ade4 to check Euclideanarity of this D matrix")
+	}
+#
+	res <- BD.group2(Y, method, sqrt.D)
+	#
+	# Permutation test for LCBD indices, distances group 2
+	if(nperm>0) {
+		nGE.L = rep(1,n)
+		for(iperm in 1:nperm) {
+			Y.perm = apply(Y,2,sample)
+			res.p <- BD.group2(Y.perm, method, sqrt.D)
+			ge <- which(res.p$LCBD >= res$LCBD)
+			nGE.L[ge] <- nGE.L[ge] + 1
+			}
+		p.LCBD <- nGE.L/(nperm+1)
+		} else { p.LCBD <- NA }
+#
 	if(sqrt.D) note.sqrt.D<-"sqrt.D=TRUE"  else  note.sqrt.D<-"sqrt.D=FALSE"
-	out <- list(SStotal_BDtotal=c(SStotal,BDtotal), SCBD=SCBD, LCBD=LCBD, 
-	method=c(method,note.sqrt.D), note=note, D=D)
+	if(save.D) { D <- res$D } else { D <- NA }
+	#
+	out <- list(SStotal_BDtotal=res$SStotal_BDtotal, LCBD=res$LCBD,  
+	p.LCBD=p.LCBD, method=c(method,note.sqrt.D), note=note, D=D)
 }
 #
 class(out) <- "beta.div"
@@ -96,7 +155,7 @@ D11 <- function(Y, algo=1)
 Y <- as.matrix(Y)
 n <- nrow(Y)
 p <- ncol(Y)
-# Prepare to divide by pp = (p-d) = n. species present at both sites
+# Prepare to divide by pp = (p-d) = no. species present at both sites
 Y.ap <- 1 - decostand(Y, "pa")
 d <- Y.ap %*% t(Y.ap)
 pp <- p-d   # n. species present at the two compared sites
