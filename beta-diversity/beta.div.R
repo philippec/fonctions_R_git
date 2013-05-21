@@ -1,18 +1,27 @@
-beta.div <- function(Y, method="hellinger", sqrt.D=FALSE, samp=TRUE, nperm=999, save.D=FALSE)
+beta.div <- function(Y, method="hellinger", sqrt.D=FALSE, samp=TRUE, nperm=999, save.D=FALSE, clock=FALSE)
+# This version includes direct calculation of the Jaccard, Sorensen and Ochiai 
+# coefficients for presence-absence data.
 #
 # Compute estimates of total beta diversity as the total variance in Y, 
-# for 17 dissimilarity coefficients or analysis of the raw data. 
-# LCBD are tested by permutation within columns of Y.
-### The test of SCDB in this experimental function is probably incorrect.
+# for 20 dissimilarity coefficients or analysis of raw data (not recommended). 
+# LCBD indices are tested by permutation within columns of Y.
 #
 # Arguments --
+# 
 # Y : community composition data matrix.
-# method : name of one of the 17 dissimilarity coefficients, or "none" for
+# method : name of one of the 20 dissimilarity coefficients, or "none" for
 #          direct calculation on Y (also the case with method="euclidean").
+# sqrt.D : If sqrt.D=TRUE, the distances in matrix D are square-rooted before 
+#          computation of SStotal, BDtotal and LCBD. 
+# samp : If samp=TRUE, the abundance-based distances (ab.jaccard, ab.sorensen,
+#        ab.ochiai, ab.simpson) are computed for sample data. If samp=FALSE, 
+#        they are computed for true population data.
 # nperm : Number of permutations for test of LCBD.
+# save.D : If save.D=TRUE, the distance matrix will appear in the output list.
+# clock : If clock=TRUE, the computation time is printed in the R console.
 #
 # License: GPL-2 
-# Author:: Pierre Legendre, December 2012, April 2013
+# Author:: Pierre Legendre, December 2012, April-May 2013
 {
 ### Internal functions
 centre <- function(D,n)
@@ -47,6 +56,14 @@ BD.group2 <- function(Y, method, sqrt.D)
 	{
 	if(method == "divergence") {
 		D = D11(Y)		
+
+	} else if(any(method == 
+	  c("jaccard","sorensen","ochiai"))) 
+		{
+		if(method=="jaccard") D = dist.binary(Y, method=1) # ade4 takes sqrt(D)
+		if(method=="sorensen")  D = dist.binary(Y, method=5) #ade4 takes sqrt(D)
+		if(method=="ochiai") D = dist.binary(Y, method=7) # ade4 takes sqrt(D)
+
 	} else if(any(method == 
 	  c("manhattan","canberra","whittaker","percentagedifference","wishart"))) 
 		{
@@ -54,7 +71,7 @@ BD.group2 <- function(Y, method, sqrt.D)
 		if(method=="canberra")  D = vegdist(Y, "canberra")
 		if(method=="whittaker") D = vegdist(decostand(Y,"total"),"manhattan")/2
 		if(method=="percentagedifference") D = vegdist(Y, "bray")
-		if(method=="wishart")   D = WishartD(Y)		
+		if(method=="wishart")   D = WishartD(Y)
 		} else {
 		if(method=="modmeanchardiff") D = D19(Y)
 		if(method=="kulczynski")  D = vegdist(Y, "kulczynski")
@@ -76,9 +93,12 @@ BD.group2 <- function(Y, method, sqrt.D)
 ###
 ###
 require(vegan)
-method <- match.arg(method, c("euclidean", "manhattan", "modmeanchardiff", "profiles", "hellinger", "chord", "chisquare", "divergence", "canberra", "whittaker", "percentagedifference", "wishart", "kulczynski", "ab.jaccard", "ab.sorensen","ab.ochiai","ab.simpson","none"))
+if(any(method == c("jaccard","sorensen","ochiai"))) require(ade4)
+method <- match.arg(method, c("euclidean", "manhattan", "modmeanchardiff", "profiles", "hellinger", "chord", "chisquare", "divergence", "canberra", "whittaker", "percentagedifference", "wishart", "kulczynski", "ab.jaccard", "ab.sorensen","ab.ochiai","ab.simpson","jaccard","sorensen","ochiai","none"))
+if(is.table(Y)) Y <- Y[1:nrow(Y),1:ncol(Y)]    # In case class(Y) is "table"
 n <- nrow(Y)
 #
+aa <- system.time({
 if(any(method == 
 c("euclidean", "profiles", "hellinger", "chord", "chisquare","none"))) {
 	note <- "Info -- This coefficient is Euclidean"
@@ -106,8 +126,12 @@ c("euclidean", "profiles", "hellinger", "chord", "chisquare","none"))) {
 #
 	if(method == "divergence") {
 		note = "Info -- This coefficient is Euclidean"
+	} else if(any(method == c("jaccard","sorensen","ochiai"))) {
+		note = c("Info -- This coefficient is Euclidean because dist.binary ",
+		"of ade4 computes it as sqrt(D). Use beta.div with option sqrt.D=FALSE")
 	} else if(any(method == 
-	  c("manhattan","canberra","whittaker","percentagedifference","wishart"))) {
+	  c("manhattan","canberra","whittaker","percentagedifference","wishart",
+	  "jaccard","sorensen","ochiai"))) {
 		if(sqrt.D) {
 		note = "Info -- This coefficient, in the form sqrt(D), is Euclidean"
 		} else {
@@ -139,6 +163,10 @@ c("euclidean", "profiles", "hellinger", "chord", "chisquare","none"))) {
 	out <- list(SStotal_BDtotal=res$SStotal_BDtotal, LCBD=res$LCBD,  
 	p.LCBD=p.LCBD, method=c(method,note.sqrt.D), note=note, D=D)
 }
+#
+})
+aa[3] <- sprintf("%2f",aa[3])
+if(clock) cat("Time for computation =",aa[3]," sec\n")
 #
 class(out) <- "beta.div"
 out
