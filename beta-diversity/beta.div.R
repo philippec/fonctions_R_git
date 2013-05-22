@@ -92,9 +92,11 @@ BD.group2 <- function(Y, method, sqrt.D)
 	}
 ###
 ###
-require(vegan)
-if(any(method == c("jaccard","sorensen","ochiai"))) require(ade4)
 method <- match.arg(method, c("euclidean", "manhattan", "modmeanchardiff", "profiles", "hellinger", "chord", "chisquare", "divergence", "canberra", "whittaker", "percentagedifference", "wishart", "kulczynski", "ab.jaccard", "ab.sorensen","ab.ochiai","ab.simpson","jaccard","sorensen","ochiai","none"))
+#
+if(any(method == c("profiles", "hellinger", "chord", "chisquare", "manhattan", "modmeanchardiff", "divergence", "canberra", "whittaker", "percentagedifference", "kulczynski"))) require(vegan)
+if(any(method == c("jaccard","sorensen","ochiai"))) require(ade4)
+#
 if(is.table(Y)) Y <- Y[1:nrow(Y),1:ncol(Y)]    # In case class(Y) is "table"
 n <- nrow(Y)
 #
@@ -130,8 +132,7 @@ c("euclidean", "profiles", "hellinger", "chord", "chisquare","none"))) {
 		note = c("Info -- This coefficient is Euclidean because dist.binary ",
 		"of ade4 computes it as sqrt(D). Use beta.div with option sqrt.D=FALSE")
 	} else if(any(method == 
-	  c("manhattan","canberra","whittaker","percentagedifference","wishart",
-	  "jaccard","sorensen","ochiai"))) {
+	  c("manhattan","canberra","whittaker","percentagedifference","wishart"))) {
 		if(sqrt.D) {
 		note = "Info -- This coefficient, in the form sqrt(D), is Euclidean"
 		} else {
