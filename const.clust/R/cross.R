@@ -10,6 +10,17 @@ function(Y, res, k1=2, k2=NULL, xv="min", xvmult=100)
 # License: GPL-2 
 # Author:: Pierre Legendre, January 2011
 {
+### Internal function
+"simpleRDA" <- function (Y, X, SS.Y, ...)
+{
+    Q <- qr(X, tol=1e-6)
+    Yfit.X <- qr.fitted(Q, Y)
+    SS <- sum(Yfit.X^2)
+    if (missing(SS.Y)) SS.Y <- sum(Y^2)
+    Rsquare <- SS/SS.Y
+    list(Rsquare = Rsquare, m = Q$rank)
+}
+### End internal function
 nlev <- nrow(res$merge)
 if( is.numeric(Y) & !(is.matrix(Y)) ) Y = cbind(Y, rep(1,length(Y)))
 if( (is.matrix(Y) | is.data.frame(Y)) & ncol(Y)==1 ) 
@@ -54,11 +65,11 @@ for(j in 1:(k2-k1+1)) {
 	# cat("Partition column #",(k1-no.1+j),"\n")
 	target <- as.data.frame(as.factor(out[,j]))
 	target <- model.matrix(~.,data=target)  # Keeping the intercept = centring
-	temp <- simpleRDA2(Y, target)
+	temp <- simpleRDA(Y, target)
 	AIC[j,1] <- R2 <- temp$Rsquare
 	m <- ncol(target)-1
 
-#	temp <- simpleRDA2(Y, out[,j])
+#	temp <- simpleRDA(Y, out[,j])
 #	R2 <- temp$Rsquare
 #	m <- length(levels(out[,j])) - 1
 	# cat("Partition column #",(k1-no.1+j)," n =",n," m =",m,"\n")

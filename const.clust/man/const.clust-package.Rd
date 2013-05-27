@@ -9,8 +9,8 @@ Compute space-constrained or time-constrained agglomerative clustering from a mu
 \tabular{ll}{
 Package: \tab const.clust\cr
 Type: \tab Package\cr
-Version: \tab 1.2\cr
-Date: \tab 2011-02-07\cr
+Version: \tab 1.3\cr
+Date: \tab 2012-11-23\cr
 License: \tab GPL-2\cr
 LazyLoad: \tab yes\cr
 }
