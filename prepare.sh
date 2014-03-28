@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DEST="/Users/philippe/Site ftp/Site ftp.umontreal.ca/labo/fonctions_r"
+DEST="/Users/philippe/Projects/Legendre/prog/fonctions_r"
 
 find . -name ".DS_Store" -delete
 find "$DEST" -name ".DS_Store" -delete
@@ -38,7 +38,8 @@ cd "../../"
 
 R CMD build const.clust
 cp const.clust_1.3.tar.gz "$DEST/"
-#R CMD INSTALL --build const.clust
+R CMD INSTALL --build const.clust
+cp const.clust_1.3.tgz "$DEST/"
 R CMD build rdaTest
 cp rdaTest_1.10.tar.gz "$DEST/"
 R CMD INSTALL --build rdaTest
