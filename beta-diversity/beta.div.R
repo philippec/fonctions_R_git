@@ -1,10 +1,10 @@
 beta.div <- function(Y, method="hellinger", sqrt.D=FALSE, samp=TRUE, nperm=999, save.D=FALSE, clock=FALSE)
-# This version includes direct calculation of the Jaccard, Sorensen and Ochiai 
-# coefficients for presence-absence data.
 #
 # Compute estimates of total beta diversity as the total variance in Y, 
 # for 20 dissimilarity coefficients or analysis of raw data (not recommended). 
 # LCBD indices are tested by permutation within columns of Y.
+# This version includes direct calculation of the Jaccard, Sorensen and Ochiai 
+# coefficients for presence-absence data.
 #
 # Arguments --
 # 
@@ -20,6 +20,12 @@ beta.div <- function(Y, method="hellinger", sqrt.D=FALSE, samp=TRUE, nperm=999, 
 # save.D : If save.D=TRUE, the distance matrix will appear in the output list.
 # clock : If clock=TRUE, the computation time is printed in the R console.
 #
+# Reference --
+#
+# Legendre, P. and M. De Cáceres. 2013. Beta diversity as the variance of 
+# community data: dissimilarity coefficients and partitioning. 
+# Ecology Letters 16: 951-963. 
+#
 # License: GPL-2 
 # Author:: Pierre Legendre, December 2012, April-May 2013
 {
@@ -32,7 +38,7 @@ centre <- function(D,n)
 		mat.cen <- mat %*% D %*% mat
 	}
 ###
-BD.group1 <- function(Y, method, save.D, per)
+BD.group1 <- function(Y, method, save.D, per, n)
 	{
 	if(method=="profiles") Y = decostand(Y, "total")
 	if(method=="hellinger") Y = decostand(Y, "hellinger")
@@ -52,7 +58,7 @@ BD.group1 <- function(Y, method, save.D, per)
 	method=method, D=D)
 	}
 ###
-BD.group2 <- function(Y, method, sqrt.D)
+BD.group2 <- function(Y, method, sqrt.D, n)
 	{
 	if(method == "divergence") {
 		D = D11(Y)		
@@ -92,6 +98,7 @@ BD.group2 <- function(Y, method, sqrt.D)
 	}
 ###
 ###
+epsilon <- sqrt(.Machine$double.eps)
 method <- match.arg(method, c("euclidean", "manhattan", "modmeanchardiff", "profiles", "hellinger", "chord", "chisquare", "divergence", "canberra", "whittaker", "percentagedifference", "wishart", "kulczynski", "ab.jaccard", "ab.sorensen","ab.ochiai","ab.simpson","jaccard","sorensen","ochiai","none"))
 #
 if(any(method == c("profiles", "hellinger", "chord", "chisquare", "manhattan", "modmeanchardiff", "divergence", "canberra", "whittaker", "percentagedifference", "kulczynski"))) require(vegan)
@@ -99,12 +106,13 @@ if(any(method == c("jaccard","sorensen","ochiai"))) require(ade4)
 #
 if(is.table(Y)) Y <- Y[1:nrow(Y),1:ncol(Y)]    # In case class(Y) is "table"
 n <- nrow(Y)
+if((n==2)&(dist(Y)[1]<epsilon)) stop("Y contains two identical rows, hence BDtotal = 0")
 #
 aa <- system.time({
 if(any(method == 
 c("euclidean", "profiles", "hellinger", "chord", "chisquare","none"))) {
 	note <- "Info -- This coefficient is Euclidean"
-	res <- BD.group1(Y, method, save.D, per=FALSE)
+	res <- BD.group1(Y, method, save.D, per=FALSE, n)
 	#
 	# Permutation test for LCBD indices, distances group 1
 	if(nperm>0) {
@@ -112,8 +120,8 @@ c("euclidean", "profiles", "hellinger", "chord", "chisquare","none"))) {
 		nGE.L = rep(1,n)
 		for(iperm in 1:nperm) {
 			Y.perm = apply(Y,2,sample)
-			res.p <- BD.group1(Y.perm, method, save.D, per=TRUE)
-			ge <- which(res.p$LCBD >= res$LCBD)
+			res.p <- BD.group1(Y.perm, method, save.D, per=TRUE, n)
+			ge <- which(res.p$LCBD+epsilon >= res$LCBD)
 			nGE.L[ge] <- nGE.L[ge] + 1
 			}
 		p.LCBD <- nGE.L/(nperm+1)
@@ -144,15 +152,15 @@ c("euclidean", "profiles", "hellinger", "chord", "chisquare","none"))) {
 		"Use is.euclid(D) of ade4 to check Euclideanarity of this D matrix")
 	}
 #
-	res <- BD.group2(Y, method, sqrt.D)
+	res <- BD.group2(Y, method, sqrt.D, n)
 	#
 	# Permutation test for LCBD indices, distances group 2
 	if(nperm>0) {
 		nGE.L = rep(1,n)
 		for(iperm in 1:nperm) {
 			Y.perm = apply(Y,2,sample)
-			res.p <- BD.group2(Y.perm, method, sqrt.D)
-			ge <- which(res.p$LCBD >= res$LCBD)
+			res.p <- BD.group2(Y.perm, method, sqrt.D, n)
+			ge <- which(res.p$LCBD+epsilon >= res$LCBD)
 			nGE.L[ge] <- nGE.L[ge] + 1
 			}
 		p.LCBD <- nGE.L/(nperm+1)
@@ -375,3 +383,5 @@ for(k in 2:nn) {
 }
 res <- as.dist(res)
 }
+
+######## End of beta.div function
