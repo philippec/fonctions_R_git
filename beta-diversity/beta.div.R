@@ -1,10 +1,10 @@
 beta.div <- function(Y, method="hellinger", sqrt.D=FALSE, samp=TRUE, nperm=999, save.D=FALSE, clock=FALSE)
 #
 # Compute estimates of total beta diversity as the total variance in Y, 
-# for 20 dissimilarity coefficients or analysis of raw data (not recommended). 
+# for 21 dissimilarity coefficients or analysis of raw data (not recommended). 
 # LCBD indices are tested by permutation within columns of Y.
 # This version includes direct calculation of the Jaccard, Sorensen and Ochiai 
-# coefficients for presence-absence data.
+# coefficients for presence-absence data, done by package ade4.
 #
 # Arguments --
 # 
@@ -27,7 +27,7 @@ beta.div <- function(Y, method="hellinger", sqrt.D=FALSE, samp=TRUE, nperm=999, 
 # Ecology Letters 16: 951-963. 
 #
 # License: GPL-2 
-# Author:: Pierre Legendre, December 2012, April-May 2013
+# Author:: Pierre Legendre, December 2012, April-May 2013, April 2015
 {
 ### Internal functions
 centre <- function(D,n)
@@ -71,12 +71,13 @@ BD.group2 <- function(Y, method, sqrt.D, n)
 		if(method=="ochiai") D = dist.binary(Y, method=7) # ade4 takes sqrt(D)
 
 	} else if(any(method == 
-	  c("manhattan","canberra","whittaker","percentagedifference","wishart"))) 
+	  c("manhattan","canberra","whittaker","%difference","ruzicka","wishart"))) 
 		{
 		if(method=="manhattan") D = vegdist(Y, "manhattan")
 		if(method=="canberra")  D = vegdist(Y, "canberra")
-		if(method=="whittaker") D = vegdist(decostand(Y,"total"),"manhattan")/2
-		if(method=="percentagedifference") D = vegdist(Y, "bray")
+		if(method=="whittaker") D = vegdist(decostand(Y,"total"), "manhattan")/2
+		if(method=="%difference") D = vegdist(Y, "bray")
+		if(method=="ruzicka")   D = RuzickaD(Y)
 		if(method=="wishart")   D = WishartD(Y)
 		} else {
 		if(method=="modmeanchardiff") D = D19(Y)
@@ -99,9 +100,9 @@ BD.group2 <- function(Y, method, sqrt.D, n)
 ###
 ###
 epsilon <- sqrt(.Machine$double.eps)
-method <- match.arg(method, c("euclidean", "manhattan", "modmeanchardiff", "profiles", "hellinger", "chord", "chisquare", "divergence", "canberra", "whittaker", "percentagedifference", "wishart", "kulczynski", "ab.jaccard", "ab.sorensen","ab.ochiai","ab.simpson","jaccard","sorensen","ochiai","none"))
+method <- match.arg(method, c("euclidean", "manhattan", "modmeanchardiff", "profiles", "hellinger", "chord", "chisquare", "divergence", "canberra", "whittaker", "%difference", "ruzicka", "wishart", "kulczynski", "ab.jaccard", "ab.sorensen","ab.ochiai","ab.simpson","jaccard","sorensen","ochiai","none"))
 #
-if(any(method == c("profiles", "hellinger", "chord", "chisquare", "manhattan", "modmeanchardiff", "divergence", "canberra", "whittaker", "percentagedifference", "kulczynski"))) require(vegan)
+if(any(method == c("profiles", "hellinger", "chord", "chisquare", "manhattan", "modmeanchardiff", "divergence", "canberra", "whittaker", "%difference", "kulczynski"))) require(vegan)
 if(any(method == c("jaccard","sorensen","ochiai"))) require(ade4)
 #
 if(is.table(Y)) Y <- Y[1:nrow(Y),1:ncol(Y)]    # In case class(Y) is "table"
@@ -140,9 +141,9 @@ c("euclidean", "profiles", "hellinger", "chord", "chisquare","none"))) {
 		note = c("Info -- This coefficient is Euclidean because dist.binary ",
 		"of ade4 computes it as sqrt(D). Use beta.div with option sqrt.D=FALSE")
 	} else if(any(method == 
-	  c("manhattan","canberra","whittaker","percentagedifference","wishart"))) {
+	  c("manhattan","canberra","whittaker","%difference","ruzicka","wishart"))) {
 		if(sqrt.D) {
-		note = "Info -- This coefficient, in the form sqrt(D), is Euclidean"
+		note = "Info -- In the form sqrt(D), this coefficient, is Euclidean"
 		} else {
 		note = c("Info -- For this coefficient, sqrt(D) would be Euclidean", 
 		"Use is.euclid(D) of ade4 to check Euclideanarity of this D matrix")
@@ -181,10 +182,32 @@ class(out) <- "beta.div"
 out
 }
 
+RuzickaD <- function(Y)
+#
+# Compute the Ruzicka dissimilarity = (B+C)/(A+B+C) (quantitative form of Jaccard).
+#
+# License: GPL-2 
+# Author:: Pierre Legendre, April 2015
+{
+n = nrow(Y)
+mat.sq = matrix(0, n, n)
+# A = W = sum of minima in among-site comparisons
+# B = sum_site.1 - W = K[1] - W   # sum of differences for sp(site1) > sp(site2)
+# C = sum_site.2 - W = K[2] - W   # sum of differences for sp(site2) > sp(site1)
+W <- matrix(0,n,n)          # matrix that will receive the sums of minima (A)
+K <- apply(Y,1,sum)         # row sums: (A+B) or (A+C)
+for(i in 2:n) for(j in 1:(i-1)) W[i,j] <- sum(pmin(Y[i,], Y[j,])) # sums of minima (A)
+for(i in 2:n) {
+	for(j in 1:(i-1)) {
+		mat.sq[i,j]<-(K[i]+K[j]-2*W[i,j])/(K[i]+K[j]-W[i,j]) } # (B+C)/(A+B+C)
+	}
+mat = as.dist(mat.sq)
+}
+
 D11 <- function(Y, algo=1)
 #
-# Compute Clark's coefficient of divergence. 
-# Coefficient D11 in Legendre and Legendre (2012, eq. 7.51).
+# Compute Clark's coefficient of divergence. This is
+# coefficient D11 in Legendre and Legendre (2012, eq. 7.51).
 #
 # License: GPL-2 
 # Author:: Pierre Legendre, April 2011
@@ -229,8 +252,8 @@ DD <- as.dist(D)
 
 D19 <- function(Y)
 #
-# Compute the Modified mean character difference.
-# Coefficient D19 in Legendre and Legendre (2012, eq. 7.46).
+# Compute the Modified mean character difference. This is
+# coefficient D19 in Legendre and Legendre (2012, eq. 7.46).
 # Division is by pp = number of species present at the two compared sites
 #
 # License: GPL-2 
@@ -250,7 +273,7 @@ DD <- as.dist(as.matrix(D)/pp)
 
 WishartD <- function(Y)
 #
-# Compute dissimilarity - 1 - Wishart similarity ratio (Wishart 1969).
+# Compute dissimilarity = (1 - Wishart similarity ratio) (Wishart 1969).
 #
 # License: GPL-2 
 # Author:: Pierre Legendre, August 2012
@@ -260,7 +283,7 @@ SS = apply(Y^2,1,sum)
 n = nrow(Y)
 mat.sq = matrix(0, n, n)
 for(i in 2:n) {
-	for(j in 1:(n-1)) { mat.sq[i,j] = CP[i,j]/(SS[i] + SS[j] - CP[i,j]) }
+	for(j in 1:(i-1)) { mat.sq[i,j] = CP[i,j]/(SS[i] + SS[j] - CP[i,j]) }
 	}
 mat = 1 - as.dist(mat.sq)
 }
