@@ -1,5 +1,5 @@
 anova.2way.unbalanced <-
-	function(Y, A, B, nperm=999, model="direct")
+	function(Y, A, B, nperm=999, model="direct", strata=FALSE, silent=FALSE)
 #
 # Model I, 2-way crossed-factor multivariate anova (by RDA) for balanced or   
 # unbalanced designs, with permutation tests. 
@@ -11,6 +11,10 @@ anova.2way.unbalanced <-
 # the response Y. The computation method by RDA was described by Legendre 
 # and Anderson (1999) for balanced designs.
 #
+# Usage -
+#
+# anova.2way.unbalanced(Y, A, B, nperm=999, model="direct", strata=FALSE, silent=FALSE)
+#
 # Arguments -
 #
 #   Y = vector or matrix of response variable(s)
@@ -18,10 +22,29 @@ anova.2way.unbalanced <-
 #   B = factor B
 #   nperm = number of permutations. Default value: nperm=999
 #   model = c("reduced", "direct", "full")
-#         Permutation model in vegan's 'anova.cca' function.
+#         Permutation model available in vegan's 'anova.cca' function.
 #         Default value: model="direct". Following Anderson and Legendre (1999),
 #         permutation of the raw data is adequate for anova since there are no 
 #         outlier values in the factors.
+#   strata = FALSE : permutations are NOT performed within the levels of the other factor.
+#   strata = TRUE  : permutations are performed within the levels of the other factor.
+#   silent = FALSE : the output message at the beginining of the funciton is printed.
+#   silent = TRUE  : the output message is not printed (for example, when the  
+#                    function is used in a simulation study).
+#
+# Details -
+#
+# Disequilibrium of the design reduces the power of the test of significance.
+#
+# Use of option "strata": permuting, or not, within the levels of the other factor did 
+# not seem to make much difference in the results of the numerical simulations that we 
+# conducted.
+#
+# Value -
+#
+# An anova table showing the results of the permutation tests of the main factors and the 
+# interaction. The parametric p-values are also shown when the analysis implies a single 
+# response variable.
 #
 # References -
 # 
@@ -33,12 +56,35 @@ anova.2way.unbalanced <-
 # testing multispecies responses in multifactorial ecological experiments. 
 # Ecological Monographs 69: 1-24.
 #
-# License: GPL-2 
-# Authors: Pierre Legendre, 2008
+### Examples - 
+# 
+# A = gl(4, 5)
+# B = factor(rep(c(1,1,1,2,2),4))
+# 
+### Multivariate unbalanced data 
+### Random response data -- No significant effect is expected
+# Y = matrix(rnorm(40),20,2)
+# (res = anova.2way.unbalanced(Y,A,B))
+# 
+### Univariate unbalanced data
+### Random response data -- No significant effect is expected
+# y = rnorm(20)
+# (res.out = anova.2way.unbalanced(y,A,B))
+### The results are identical to those of univariate 2-way unbalanced anova
+### See http://mcfromnz.wordpress.com/2011/03/02/anova-type-iiiiii-ss-explained/
+### Set the contrasts for each factor in lm()
+### Use Anova() from package {car}
+# require(car)
+# res.lm = lm(y ~ A*B, contrasts=list(A=contr.sum, B=contr.sum))
+# (res.out.III = Anova(res.lm, type="III"))
+# 
+# Author:: Pierre Legendre, Université de Montréal, 2008, 2015
+# License: GPL-2
 #
 ################################################################################
 {
-library(vegan)
+require(vegan)
+if(!silent) cat("Output of this function is adjusted to the changes in vegan 2.2-1\n")
 Y = as.matrix(Y)
 n <- nrow(Y)
 p <- ncol(Y)
@@ -54,20 +100,30 @@ model.B <- as.matrix(model.mat[,(ncol.A+1):(ncol.A+ncol.B)])
 model.int <- as.matrix(model.mat[,(ncol.A+ncol.B+1):ncol(model.mat)])
 
 # Test of factor A
-out.rda <- rda(Y, model.A, cbind(model.B, model.int))
-int.out <- anova(out.rda, perm.max=(nperm+1), step=(nperm+1), model=model)
-out.A <- int.out[1,]
+out.rda1 <- rda(Y, model.A, cbind(model.B, model.int))
+# if(strata) { bl<-B } else { bl=NULL }
+if(strata) { 
+	int.out1 <- anova(out.rda1, permutations=how(blocks=B, nperm=nperm), model=model)
+	} else {
+	int.out1 <- anova(out.rda1, permutations=how(nperm=nperm), model=model)
+	}
+out.A <- int.out1[1,]
 
 # Test of factor B
-out.rda <- rda(Y, model.B, cbind(model.A, model.int))
-int.out <- anova(out.rda, perm.max=(nperm+1), step=(nperm+1), model=model)
-out.B <- int.out[1,]
+out.rda2 <- rda(Y, model.B, cbind(model.A, model.int))
+# if(strata) { bl<-A } else { bl=NULL }
+if(strata) { 
+	int.out2 <- anova(out.rda2, permutations=how(blocks=A, nperm=nperm), model=model)
+	} else {
+	int.out2 <- anova(out.rda2, permutations=how(nperm=nperm), model=model)
+	}
+out.B <- int.out2[1,]
 
 # Test of interaction
-out.rda <- rda(Y, model.int, cbind(model.A, model.B))
-int.out <- anova(out.rda, perm.max=(nperm+1), step=(nperm+1), model=model)
-out.AB <- int.out[1,]
-out.res <- int.out[2,]
+out.rda3 <- rda(Y, model.int, cbind(model.A, model.B))
+int.out3 <- anova(out.rda3, permutations=how(nperm=nperm), model=model)
+out.AB <- int.out3[1,]
+out.res <- int.out3[2,]
 
 # Parametric probabilities (for univariate response data only)
 if(p == 1) {
@@ -79,13 +135,15 @@ if(p == 1) {
 
 # Table of results
 out <- rbind(out.A, out.B, out.AB, out.res)
-out$Var <- out$Var*(n-1)/out$Df
+# SumSq <- out$Variance*(n-1)           # Sums of squares, as in Anova output of {car}
+# out$Var <- out$Variance*(n-1)/out$Df  # Mean squares
 rownames(out) <- c("Factor A","Factor B","Interaction","Residuals")
 if(p == 1) {
-	out <- as.data.frame(cbind(out[,1:4], P.param, out[,5]))
-	colnames(out) <- c("Df","MeanSq","F-stat","N.perm","P.param","Pr(>F)")
-	} else {
-	colnames(out) <- c("Df","MeanSq","F-stat","N.perm","Pr(>F)")
+#	out <- as.data.frame(cbind(out[,1:3], P.param, out[,4]))
+	out <- as.data.frame(cbind(out[,1], round(out[,2:3],4), round(P.param,4), out[,4]))
+	colnames(out) <- c("Df","MeanSq","F-stat","P.param","Pr(>F)")
+#	} else {
+#	colnames(out) <- c("Df","MeanSq","F-stat","Pr(>F)")
 	}
 
 out <- list(Anova_unbalanced=out)
