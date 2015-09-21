@@ -38,8 +38,6 @@ if(n1 != n2) stop("The two vectors have different lengths. They cannot be paired
 
 tail <- match.arg(alternative, c("two.sided", "less", "greater"))
 
-#vec.by.rows = as.vector(t(cbind(vec1,vec2)))
-
 res = t.test(vec1, vec2, paired=TRUE, alternative=tail)
 t.ref =  res$statistic
 
