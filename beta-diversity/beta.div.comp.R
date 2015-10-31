@@ -88,6 +88,9 @@ beta.div.comp <- function(mat, coef="J", quant=FALSE, save.abc=FALSE)
 # Legendre, P. 2014. Interpreting the replacement and richness difference   
 # components of beta diversity. Global Ecology and Biogeography, 23, 1324-1334.
 #
+# Legendre, P. and M. De Cáceres. 2013. Beta diversity as the variance of community data: 
+# dissimilarity coefficients and partitioning. Ecology Letters 16: 951-963.
+#
 # Podani, J., Ricotta, C. & Schmera, D. (2013) A general framework for analyzing 
 # beta diversity, nestedness and related community-level phenomena based on 
 # abundance data. Ecological Complexity, 15, 52-61.
