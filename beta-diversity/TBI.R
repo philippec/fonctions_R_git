@@ -1,17 +1,18 @@
-TBI <- function(mat1,mat2,method="%difference", pa.tr=FALSE, nperm=99, permute.sp=1, BCD=TRUE, replace=FALSE, clock=FALSE)
+TBI <- function(mat1,mat2,method="%difference", pa.tr=FALSE, nperm=99, permute.sp=1, BCD=TRUE, replace=FALSE, test.BC=TRUE, clock=FALSE)
 {
 ### Internal functions
 dissim <- function(mat1, mat2, n, method, tr=TRUE, BCD, ref)
-# tr=TRUE  : The species data have been transformed by decostand in transform()
+# tr =TRUE : The species data have been transformed by decostand in transform()
 # BCD=TRUE : Method is {"ruzicka", "%difference"} and output table BCD was requested
 # ref=TRUE : The function is called to compute the reference values of the TBI dissimil.
 {
-vecD = vector(mode="numeric",length=n)
+vecD = vector(mode="numeric",length=n)     # to receive the values D=(B+C)/den
 if(BCD) { 
-	vecB = vector(mode="numeric",length=n)
-	vecC = vector(mode="numeric",length=n)
-	vecD = vector(mode="numeric",length=n)
-	} else { vecB=NA; vecC=NA; vecD=NA }
+	vecB = vector(mode="numeric",length=n) # to receive the values B/den
+	vecC = vector(mode="numeric",length=n) # to receive the values C/den
+	v.B  = vector(mode="numeric",length=n) # to receive the values B
+	v.C  = vector(mode="numeric",length=n) # to receive the values C
+	} else { vecB=NA; vecC=NA; v.B=NA; v.C=NA }
 #
 # Compute the dissimilarity between T1 and T2 for each object (site)
 # 1. If method = {"hellinger", "chord"}, tr is TRUE
@@ -21,20 +22,22 @@ if(tr) for(i in 1:n) vecD[i] = dist(rbind(mat1[i,], mat2[i,]))
 if(method == "euclidean")  
 	for(i in 1:n) vecD[i] = dist(rbind(mat1[i,], mat2[i,])) 
 # 3. Compute the Ruzicka or %difference dissimilarity 
-if(method == "ruzicka") dissimil=1       # Quantitative form of Jaccard
-if(method == "%difference") dissimil=2   # Quantitative form of Sørensen
+# if(method == "ruzicka")          # Quantitative form of Jaccard
+# if(method == "%difference")      # Quantitative form of Sørensen
 if(any(method == c("ruzicka", "%difference"))) { 
 	for(i in 1:n) {
 		tmp = RuzickaD(mat1[i,], mat2[i,], method=method, BCD=BCD, ref=ref) 
 		if(BCD) {
-			vecB[i] <- tmp$B
-			vecC[i] <- tmp$C }
+			vecB[i] <- tmp$B.den
+			vecC[i] <- tmp$C.den
+			v.B[i]  <- tmp$B
+			v.C[i]  <- tmp$C    }
     	vecD[i] <- tmp$D
 		}
 	}
 # Alternative method (not used here) to compute the %difference dissimilarity:
-#	for(i in 1:n) vecD[i] = vegdist(rbind(mat1[i,], mat2[i,]), "bray")         #Slower
-list(vecB=vecB, vecC=vecC, vecD=vecD)
+#	for(i in 1:n) vecD[i] = vegdist(rbind(mat1[i,], mat2[i,]), "bray")         # Slower
+list(vecB=vecB, vecC=vecC, vecD=vecD, v.B=v.B, v.C=v.C)
 }
 ###
 transform <- function(mat, method)
@@ -65,23 +68,62 @@ if(any(method == c("hellinger", "chord"))) {
 	tr <- TRUE
 	require(vegan)
 	} else { tr <- FALSE }
+test.B.C <- NA 
 if( (any(method == c("ruzicka", "%difference"))) & BCD) { 
 	BCD.mat <- matrix(0,n,3)
 	if(method=="%difference") colnames(BCD.mat) <- 
 			c("B/(2A+B+C)","C/(2A+B+C)","D=(B+C)/(2A+B+C)")
 	if(method=="ruzicka")    colnames(BCD.mat) <- 
 			c("B/(A+B+C)","C/(A+B+C)","D=(B+C)/(A+B+C)")
-	rownames(BCD.mat) <- paste("Obj",1:n,sep=".")
+	rownames(BCD.mat) <- paste("Site",1:n,sep=".")
+	Change = vector(mode="character",length=n)
 	} else {
 	BCD <- FALSE 
-	BCD.mat <- NA }
+	BCD.mat <- NA 
+	BCD.summ <- NA 
+	}
 ###
 # 1. Compute the reference D for each object from corresponding vectors in the 2 matrices.
 if(tr) { 
 	tmp <- dissim(transform(mat1,method),transform(mat2,method),n,method,tr,BCD,ref=FALSE)
 	} else { tmp <- dissim(mat1, mat2, n, method, tr, BCD, ref=TRUE) }
-vecD.ref <- tmp$vecD
-if(BCD) { BCD.mat[,1]<-tmp$vecB ; BCD.mat[,2]<-tmp$vecC ; BCD.mat[,3]<-tmp$vecD }
+	vecD.ref <- tmp$vecD
+	if(BCD) { BCD.mat[,1]<-tmp$vecB ; BCD.mat[,2]<-tmp$vecC ; BCD.mat[,3]<-tmp$vecD 
+	for(i in 1:n) {
+		if(tmp$vecB[i]>tmp$vecC[i]) Change[i]="–  " else Change[i]="+  " }
+	BCD.summ = matrix(NA,1,6)
+	colnames(BCD.summ) = c("mean(B/den)","mean(C/den)","mean(D)","B/(B+C)","C/(B+C)", 
+		"Change")
+	BCD.means = apply(BCD.mat,2,mean, na.rm=TRUE)  # Exclude the sites with value = NA
+	BCD.summ[1,1:3] = BCD.means
+	BCD.summ[1,4:5] = BCD.means[1:2]/BCD.means[3]
+	BCD.summ = as.data.frame(BCD.summ)
+	if(BCD.summ[1,1]>BCD.summ[1,2]) BCD.summ[1,6]="–  " else BCD.summ[1,6]="+  "
+	rownames(BCD.summ) = ""
+	#
+	BCD.mat <- as.data.frame(BCD.mat)
+	BCD.mat = cbind(BCD.mat,Change)
+	#
+	if((n>4) & test.BC) {   # Tests of significance of difference between B/den and C/den
+		test.B.C = matrix(NA,2,3)
+		rownames(test.B.C) = c("Paired t.test", "Wilcoxon test")
+		# Paired t-test and Wilcokon test between the vectors of B and C values
+		t.res = t.test(tmp$vecB, tmp$vecC, paired=TRUE, alternative = "two.sided")
+		wilcox.res = wilcox.test(tmp$v.B, tmp$v.C, paired=TRUE, alternative="two.sided")
+		test.B.C[1,] = c(t.res$estimate[[1]], t.res$statistic[[1]], t.res$p.value)
+		test.B.C[2,2:3] = c(wilcox.res$statistic[[1]], wilcox.res$p.value)
+		signif. = vector(mode="character",length=2)
+		signif.[1] = ifelse(t.res$p.value>0.05, " ","*")
+		signif.[2] = ifelse(wilcox.res$p.value>0.05, " ","*")
+		test.B.C = as.data.frame(test.B.C)
+		test.B.C = cbind(test.B.C, signif.)
+		colnames(test.B.C) = c("  mean(B-C)","Stat","p.value","  p<=0.05")
+		}
+	# Matrix containing the observed values of B and C, in case they are needed later
+	BC = cbind(tmp$v.B, tmp$v.C)
+	colnames(BC) = c("B", "C")
+	rownames(BC) <- paste("Site",1:n,sep=".")
+	}
 ###
 if(permute.sp!=3) {   # Permute the data separately in each column.
 # 2. Permutation methods 1 and 2 --
@@ -147,7 +189,7 @@ p.adj <- p.adjust(p.dist,"holm")
 A[3] <- sprintf("%2f",A[3])
 if(clock) cat("Computation time =",A[3]," sec",'\n')
 #
-list(TBI=vecD.ref, p.TBI=p.dist, p.adj=p.adj, BCD.mat=BCD.mat)
+list(TBI=vecD.ref, p.TBI=p.dist, p.adj=p.adj, BCD.mat=BCD.mat, BCD.summary=BCD.summ, test.B.C=test.B.C)
 }
 
 RuzickaD <- function(vec1, vec2, method="ruzicka", BCD=FALSE, ref=TRUE)
@@ -188,7 +230,7 @@ if(ref) {    # Compute the reference values of statistics D, B and C
 if(method == "ruzicka") { den <-(sum.Y-A)  # den = (A+B+C)
 	} else { den <- sum.Y }                # den = (2A+B+C)
 if(!BCD) { B <- NA ; C <- NA }
-list(B=B/den, C=C/den, D=D/den)
+list(B.den=B/den, C.den=C/den, D=D/den, B=B, C=C)
 }
 
 # Examples -- 
