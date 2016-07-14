@@ -235,7 +235,7 @@ list(B.den=B/den, C.den=C/den, D=D/den, B=B, C=C)
 
 # Examples -- 
 # data(mite)
-# res1 = paired.diff(mite[1:10,],mite[61:70,],method="%diff",nperm=999,permute.sp=1)
+# res1 = TBI(mite[1:10,],mite[61:70,],method="%diff",nperm=999,permute.sp=1)
 # 
 # Example using permute.sp=3. This method is not recommended (low power).
-# res2 = paired.diff(mite[1:10,],mite[61:70,],method="hellinger",nperm=999,permute.sp=3)
+# res2 = TBI(mite[1:10,],mite[61:70,],method="hellinger",nperm=999,permute.sp=3)
