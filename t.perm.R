@@ -66,13 +66,7 @@ perm.t <- t.ref$stat   # Start the vector containing the list of t statistics
 # Compute the parametric p-value
 if(tail == -1) p.param <- pt(t.ref$stat,(n-2),lower.tail=TRUE)
 if(tail ==  1) p.param <- pt(t.ref$stat,(n-2),lower.tail=FALSE)
-if(tail ==  2) {
-	if(t.ref$stat >= 0) {
-		p.param <- pt(t.ref$stat,(n-2),lower.tail=FALSE)*2
-		} else {
-		p.param <- pt(t.ref$stat,(n-2),lower.tail=TRUE)*2
-		}
-	}
+if(tail ==  2) p.param <- pt(abs(t.ref$stat),(n-2),lower.tail=FALSE)*2
 
 # Print these first results
 if(!silent) cat('\nt-test comparing two group means','\n')
